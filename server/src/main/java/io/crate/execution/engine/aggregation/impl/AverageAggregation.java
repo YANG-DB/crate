@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.lucene.util.NumericUtils;
@@ -89,8 +90,9 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
 
     public static class AverageState implements Comparable<AverageState> {
 
-        public double sum = 0;
-        public long count = 0;
+        private double sum = 0;
+        private long count = 0;
+        private final KahanSummationForDouble kahanSummationForDouble = new KahanSummationForDouble();
 
         public Double value() {
             if (count > 0) {
@@ -98,6 +100,21 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
             } else {
                 return null;
             }
+        }
+
+        public void addNumber(double number) {
+            this.sum = kahanSummationForDouble.sum(this.sum, number);
+            this.count++;
+        }
+
+        public void removeNumber(double number) {
+            this.sum = kahanSummationForDouble.sum(this.sum, -number);
+            this.count--;
+        }
+
+        public void reduce(@Nonnull AverageState other) {
+            this.count += other.count;
+            this.sum = kahanSummationForDouble.sum(this.sum, other.sum);
         }
 
         @Override
@@ -210,8 +227,7 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
         if (state != null) {
             Number value = (Number) args[0].value();
             if (value != null) {
-                state.count++;
-                state.sum += value.doubleValue();
+                state.addNumber(value.doubleValue()); // Mutates state.
             }
         }
         return state;
@@ -229,8 +245,7 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
         if (previousAggState != null) {
             Number value = (Number) stateToRemove[0].value();
             if (value != null) {
-                previousAggState.count--;
-                previousAggState.sum -= value.doubleValue();
+                previousAggState.removeNumber(value.doubleValue()); // Mutates previousAggState.
             }
         }
         return previousAggState;
@@ -244,8 +259,7 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
         if (state2 == null) {
             return state1;
         }
-        state1.count += state2.count;
-        state1.sum += state2.sum;
+        state1.reduce(state2); // Mutates state1.
         return state1;
     }
 
@@ -304,8 +318,7 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
                         return new AverageState();
                     },
                     (values, state) -> {
-                        state.sum += values.nextValue();
-                        state.count++;
+                        state.addNumber(values.nextValue()); // Mutates state.
                     }
                 );
             case FloatType.ID:
@@ -317,8 +330,7 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
                     },
                     (values, state) -> {
                         var value = NumericUtils.sortableIntToFloat((int) values.nextValue());
-                        state.sum += value;
-                        state.count++;
+                        state.addNumber(value); // Mutates state.
                     }
                 );
             case DoubleType.ID:
@@ -330,8 +342,7 @@ public class AverageAggregation extends AggregationFunction<AverageAggregation.A
                     },
                     (values, state) -> {
                         var value = NumericUtils.sortableLongToDouble((values.nextValue()));
-                        state.sum += value;
-                        state.count++;
+                        state.addNumber(value); // Mutates state.
                     }
                 );
             default:

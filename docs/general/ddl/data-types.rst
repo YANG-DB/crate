@@ -203,6 +203,7 @@ CrateDB supports the following character types:
 
 
 .. _type-varchar:
+.. _data-type-varchar:
 
 ``VARCHAR(n)``
 ''''''''''''''
@@ -211,9 +212,9 @@ The ``VARCHAR(n)`` (or ``CHARACTER VARYING(n)``) type represents variable
 length strings. All unicode characters are allowed.
 
 The optional length specification ``n`` is a positive :ref:`integer
-<data-type-numeric>` that defines the maximum length, in characters, of the
+<type-numeric>` that defines the maximum length, in characters, of the
 values that have to be stored or cast. The minimum length is ``1``. The maximum
-length is defined by the upper :ref:`integer <data-type-numeric>` range.
+length is defined by the upper :ref:`integer <type-numeric>` range.
 
 An attempt to store a string literal that exceeds the specified length
 of the character data type results in an error.
@@ -284,8 +285,8 @@ will be truncated to ``n`` characters without raising an error.
     SELECT 1 row in set (... sec)
 
 ``CHARACTER VARYING`` and ``VARCHAR`` without the length specifier are
-aliases for the :ref:`text <data-type-text>` data type,
-see also :ref:`type aliases <data-type-aliases>`.
+aliases for the :ref:`text <type-text>` data type,
+see also :ref:`type aliases <data-types-postgres-aliases>`.
 
 .. HIDE:
 
@@ -359,9 +360,9 @@ string starts with the ``B`` prefix, followed by a sequence of ``0`` or ``1``
 digits quoted within single quotes ``'``.
 
 The optional length specification ``n`` is a positive :ref:`integer
-<data-type-numeric>` that defines the maximum length, in characters, of the
+<type-numeric>` that defines the maximum length, in characters, of the
 values that have to be stored or cast. The minimum length is ``1``. The maximum
-length is defined by the upper :ref:`integer <data-type-numeric>` range.
+length is defined by the upper :ref:`integer <type-numeric>` range.
 
 For example::
 
@@ -418,10 +419,11 @@ A type representing a JSON string.
 
 This type only exists for compatibility and interoperability with PostgreSQL. It cannot to be
 used in data definition statements and it is not possible to use it to store data.
-To store JSON data use the existing :ref:`OBJECT <object_data_type>` type. It is a more powerful
+To store JSON data use the existing :ref:`OBJECT <data-types-objects>` type. It is a more powerful
 alternative that offers more flexibility and delivering the same benefits.
 
-The JSON types primary use is in :ref:`type casting <type_cast>` for interoperability with PostgreSQL clients which may use the ``JSON`` type.
+The JSON types primary use is in :ref:`type casting <data-types-casting>` for
+interoperability with PostgreSQL clients which may use the ``JSON`` type.
 The following type casts are example of supported usage of the ``JSON`` data type:
 
 Casting from ``STRING`` to ``JSON``::
@@ -1699,7 +1701,7 @@ to days and hours::
 .. TIP::
 
     You can use intervals in combination with :ref:`CURRENT_TIMESTAMP
-    <current_timestamp>` to calculate values that are offset relative to the
+    <scalar-current_timestamp>` to calculate values that are offset relative to the
     current date and time.
 
     For example, to calculate a timestamp corresponding to exactly one day ago,
@@ -1789,8 +1791,8 @@ address::
 
 IP addresses support the ``<<`` :ref:`operator <gloss-operator>`, which checks
 for subnet inclusion using `CIDR notation`_. The left-hand :ref:`operand
-<gloss-operand>` must an :ref:`IP <ip-type>` type and the right-hand must be
-:ref:`TEXT <data-type-text>` type (e.g., ``'192.168.1.5' << '192.168.1/24'``).
+<gloss-operand>` must an :ref:`IP type <type-ip>` and the right-hand must be
+:ref:`TEXT type <type-text>` (e.g., ``'192.168.1.5' << '192.168.1/24'``).
 
 
 .. _data-types-container:
@@ -1825,7 +1827,7 @@ schema.
 
 Objects are not the same as JSON objects, although they share a lot of
 similarities. However, objects can be :ref:`inserted as JSON strings
-<data-type-object-json>`.
+<data-types-object-json>`.
 
 Syntax::
 
@@ -2304,9 +2306,9 @@ Inserting objects as JSON
 .........................
 
 You can insert objects using JSON strings. To do this, you must :ref:`type cast
-<type_cast>` the string to an object with an implicit cast (i.e., passing a
-string into an object column) or an explicit cast (i.e., using the ``::OBJECT``
-syntax).
+<data-types-casting-fn>` the string to an object with an implicit cast (i.e.,
+passing a string into an object column) or an explicit cast (i.e., using the
+``::OBJECT`` syntax).
 
 .. TIP::
 
@@ -2577,7 +2579,7 @@ TODO::
 
 
 
-.. _data-type-geo-shape:
+.. _data-types-geo-shape:
 
 Geometric shapes
 ----------------
@@ -2657,7 +2659,7 @@ The default definition for the column type is::
 
 There are two geographic index types: ``geohash`` (the default) and
 ``quadtree``. These indices are only allowed on ``geo_shape`` columns. For more
-information, see :ref:`geo_shape_data_type_index`.
+information, see :ref:`type-geo_shape-index`.
 
 Both of these index types accept the following parameters:
 
@@ -2690,7 +2692,7 @@ Both of these index types accept the following parameters:
 ``tree_levels``
   Maximum number of layers to be used by the ``PrefixTree`` defined by
   the index type (either ``geohash`` or ``quadtree``. See
-  :ref:`geo_shape_data_type_index`).
+  :ref:`type-geo_shape-index`).
 
   This can be used to control the precision of the used index. Since
   this parameter requires a certain level of understanting of the
@@ -2842,9 +2844,9 @@ See the table below for a full list of aliases:
 
 .. NOTE::
 
-   The :ref:`PG_TYPEOF <pg_typeof>` system :ref:`function <gloss-function>` can
-   be used to resolve the data type of any :ref:`expression
-   <gloss-expression>`.
+   The :ref:`PG_TYPEOF <scalar-pg_typeof>` system :ref:`function
+   <gloss-function>` can be used to resolve the data type of any
+   :ref:`expression <gloss-expression>`.
 
 .. _data-types-postgres-internal:
 
@@ -2854,57 +2856,62 @@ Internal-use types
 .. _type-char:
 
 ``CHAR``
-  A one-byte character used internally as for enumeration in the
-  :ref:`PostgreSQL system catalogs <postgres_pg_catalog>`.
+''''''''
+A one-byte character used internally as for enumeration in the
+:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
 
-  Specified as a signed integer in the range -128 to 127.
+Specified as a signed integer in the range -128 to 127.
 
 .. _type-oid:
 
 ``OID``
-  An *Object Identifier* (OID). OIDS are used internally as primary keys in the
-  :ref:`PostgreSQL system catalogs <postgres_pg_catalog>`.
+'''''''
+An *Object Identifier* (OID). OIDS are used internally as primary keys in the
+:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
 
-  The ``OID`` type is mapped to the :ref:`integer
-  <data-type-numeric>` data type.
+The ``OID`` type is mapped to the :ref:`integer
+<type-numeric>` data type.
 
 .. _type-regproc:
 
 ``REGPROC``
-  An alias for the :ref:`oid <type-oid>` type.
+'''''''''''
+An alias for the :ref:`oid <type-oid>` type.
 
-  The ``REGPROC`` type is used by tables in the :ref:`postgres_pg_catalog`
-  schema to reference functions in the `pg_proc`_ table.
+The ``REGPROC`` type is used by tables in the :ref:`postgres-pg_catalog`
+schema to reference functions in the `pg_proc`_ table.
 
-  :ref:`Casting <type_cast>` a ``REGPROC`` type to a :ref:`data-type-text` or
-  :ref:`integer <data-type-numeric>` type will result in the corresponding
-  function name or ``oid`` value, respectively.
+:ref:`Casting <data-types-casting>` a ``REGPROC`` type to a :ref:`type-text` or
+:ref:`integer <type-numeric>` type will result in the corresponding
+function name or ``oid`` value, respectively.
 
 .. _type-regclass:
 
 ``REGCLASS``
-  An alias for the :ref:`oid <type-oid>` type.
+''''''''''''
+An alias for the :ref:`oid <type-oid>` type.
 
-  The ``REGCLASS`` type is used by tables in the :ref:`postgres_pg_catalog`
-  schema to reference relations in the `pg_class`_ table.
+The ``REGCLASS`` type is used by tables in the :ref:`postgres-pg_catalog`
+schema to reference relations in the `pg_class`_ table.
 
-  :ref:`Casting <type_cast>` a ``REGCLASS`` type to a :ref:`data-type-text` or
-  :ref:`integer <data-type-numeric>` type will result in the corresponding
-  relation name or ``oid`` value, respectively.
+:ref:`Casting <data-types-casting>` a ``REGCLASS`` type to a
+:ref:`type-text` or :ref:`integer <type-numeric>` type will result
+in the corresponding relation name or ``oid`` value, respectively.
 
 .. _type-oidvector:
 
 ``OIDVECTOR``
-  The ``OIDVECTOR`` type is used to represent one or more :ref:`oid <type-oid>`
-  values.
+'''''''''''''
+The ``OIDVECTOR`` type is used to represent one or more :ref:`oid <type-oid>`
+values.
 
-  This type is similar to an :ref:`array <data-type-array>` of integers.
-  However, you cannot use it with any :ref:`scalar functions
-  <scalar-functions>` or :ref:`expressions <gloss-expression>`.
+This type is similar to an :ref:`array <data-types-arrays>` of integers.
+However, you cannot use it with any :ref:`scalar functions
+<scalar-functions>` or :ref:`expressions <gloss-expression>`.
 
 .. SEEALSO::
 
-    :ref:`PostgreSQL: Object Identifier (OID) types <postgres_pg_oid>`
+    :ref:`PostgreSQL: Object Identifier (OID) types <type-oid>`
 
 
 .. _data-types-casting:
@@ -3065,7 +3072,7 @@ Example usages, initializing an ``INTEGER`` and a ``TIMESTAMP`` constant:
 
   This cast operation is limited to :ref:`primitive data types
   <data-types-primitive>` only. For complex types such as ``ARRAY`` or
-  ``OBJECT``, use the :ref:`type_cast` syntax.
+  ``OBJECT``, use the :ref:`data-types-casting-fn` syntax.
 
 
 .. _BigDecimal documentation: https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/math/BigDecimal.html

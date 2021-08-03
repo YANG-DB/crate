@@ -275,8 +275,8 @@ CrateDB also supports the :ref:`oidvector <type-oidvector>` type.
 
 .. NOTE::
 
-    Casting a :ref:`string <character-data-types>` or an :ref:`integer
-    <data-type-numeric>` to the ``regproc`` type does not result in a function
+    Casting a :ref:`string <data-types-character-data>` or an :ref:`integer
+    <type-numeric>` to the ``regproc`` type does not result in a function
     lookup (as it does with PostgreSQL).
 
     Instead:
@@ -375,7 +375,7 @@ Limitations
 - Transaction limitations as described above.
 
 - Having ``escape processing`` enabled could prevent the usage of :ref:`Object
-  Literals <data-type-object-literals>` in case an object key's starting
+  Literals <data-types-object-literals>` in case an object key's starting
   character clashes with a JDBC escape keyword (see also `JDBC escape syntax
   <https://docs.oracle.com/javadb/10.10.1.2/ref/rrefjdbc1020262.html>`_).
   Currently, disabling ``escape processing`` will remedy this, but prevent the
@@ -501,7 +501,7 @@ subscript is not supported.
 Type casts
 ''''''''''
 
-CrateDB accepts the :ref:`type_conversion` syntax for conversion of one data
+CrateDB accepts the :ref:`data-types-casting` syntax for conversion of one data
 type to another.
 
 .. SEEALSO::

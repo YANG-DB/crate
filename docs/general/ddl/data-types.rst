@@ -474,7 +474,7 @@ CrateDB supports the following numeric types:
 
     The :ref:`REAL <type-real>` and :ref:`DOUBLE PRECISION
     <type-double-precision>` data types are inexact, variable-precision
-    floating-poin t types, meaning that these types are stored as an
+    floating-point types, meaning that these types are stored as an
     approximation.
 
     Accordingly, storage, calculation, and retrieval of the value will not
@@ -1067,7 +1067,7 @@ Example::
     +----------+----------+
     SELECT 1 row in set (... sec)
 
-You can use :ref:`data_format() <scalar-date_format>` to to make the output
+You can use :ref:`data_format() <scalar-date_format>` to make the output
 easier to read::
 
     cr> SELECT
@@ -1725,7 +1725,7 @@ IP addresses
 ``IP``
 ''''''
 
-An ``IP`` is a string representation of an `IP adddress`_ (IPv4 or IPv6).
+An ``IP`` is a string representation of an `IP address`_ (IPv4 or IPv6).
 
 Internally IP addresses are stored as ``BIGINT`` values, allowing expected
 sorting, filtering, and aggregation.
@@ -2194,7 +2194,7 @@ TODO::
 
 .. NOTE::
 
-    Given that dynamically added sub-columns of an ``IGNORED`` objects are not
+    Given that dynamically added sub-columns of an ``IGNORED`` object are not
     indexed, filter operations on these columns cannot utilize the index and
     instead a value lookup is performed for each matching row. This can be
     mitigated by combining a filter using the ``AND`` clause with other
@@ -2527,7 +2527,7 @@ Alternatively a `WKT`_ string can also be used to declare geo points::
 
     Empty geo points are not supported.
 
-    Additionally, if a column is dynamically created the type detection won't
+    Additionally, if a column is dynamically created, the type detection won't
     recognize neither WKT strings nor double arrays. That means columns of type
     ``GEO_POINT`` must always be declared beforehand.
 
@@ -3096,4 +3096,4 @@ Example usages, initializing an ``INTEGER`` and a ``TIMESTAMP`` constant:
 .. _tracking issue #11528: https://github.com/crate/crate/issues/11528
 .. _The PostgreSQL DATE type: https://www.postgresql.org/docs/current/datatype-datetime.html
 .. _Fully Qualified Domain Name: https://en.wikipedia.org/wiki/Fully_qualified_domain_name
-.. _IP adddress: https://en.wikipedia.org/wiki/IP_address
+.. _IP address: https://en.wikipedia.org/wiki/IP_address

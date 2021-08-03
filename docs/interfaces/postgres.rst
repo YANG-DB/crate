@@ -69,8 +69,8 @@ Authentication methods can be configured using :ref:`admin_hba`.
 ParameterStatus
 '''''''''''''''
 
-After the authentication has succeeded the server has the possibility to send
-multiple ``ParameterStatus`` messages to the client.  These are used to
+After the authentication succeeded, the server has the possibility to send
+multiple ``ParameterStatus`` messages to the client. These are used to
 communicate information like ``server_version`` (emulates PostgreSQL 9.5) or
 ``server_encoding``.
 
@@ -126,7 +126,9 @@ following limitations:
 Copy operations
 ---------------
 
-CrateDB does not support the ``COPY`` sub-protocol.
+CrateDB does not support the distinct sub-protocol that is used to serve
+``COPY`` operations and provides another implementation for transferring bulk
+data using the :ref:`sql-copy-from` and :ref:`sql-copy-to` statements.
 
 
 .. _postgres-fn-call:
@@ -452,7 +454,7 @@ Objects
 
 The definition of structured values by using ``JSON`` types, *composite types*
 or ``HSTORE`` are not supported. CrateDB alternatively allows the definition of
-nested documents (of type :ref:`type-object`) that store fieldscontaining any
+nested documents (of type :ref:`type-object`) that store fields containing any
 CrateDB supported data type, including nested object types.
 
 
@@ -523,15 +525,6 @@ If you are missing features, functions or dialect improvements and have a great
 use case for it, let us know on `GitHub`_. We're always improving and extending
 CrateDB and we love to hear feedback.
 
-
-.. _postgres-copy:
-
-``COPY``
---------
-
-CrateDB does not support the distinct sub-protocol that is used to serve
-``COPY`` operations and provides another implementation for transferring bulk
-data using the :ref:`sql-copy-from` and :ref:`sql-copy-to` statements.
 
 
 .. _GitHub: https://github.com/crate/crate

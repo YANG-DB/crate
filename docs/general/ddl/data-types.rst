@@ -347,73 +347,6 @@ Query data::
    There is no difference in storage costs among all character data types.
 
 
-.. _data-type-bit:
-
-``BIT(n)``
-''''''''''
-
-A string representation of a a bit sequence, useful for visualizing a `bit
-mask`_.
-
-Values of this type can be created using the bit string literal syntax. A bit
-string starts with the ``B`` prefix, followed by a sequence of ``0`` or ``1``
-digits quoted within single quotes ``'``.
-
-An example::
-
-  B'00010010'
-
-The optional length specification ``n`` is a positive :ref:`integer
-<type-numeric>` that defines the maximum length, in characters, of the
-values that have to be stored or cast. The minimum length is ``1``. The maximum
-length is defined by the upper :ref:`integer <type-numeric>` range.
-
-For example::
-
-  cr> CREATE TABLE my_table (
-  ...     bit_mask BIT(4)
-  ... );
-  CREATE OK, 1 row affected (... sec)
-
-::
-
-  cr> INSERT INTO my_table (
-  ...     bit_mask
-  ... ) VALUES (
-  ...     B'0110'
-  ... );
-  INSERT OK, 1 row affected  (... sec)
-
-.. HIDE:
-
-    cr> REFRESH TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
-
-::
-
-    cr> SELECT bit_mask FROM my_table;
-    +----------+
-    | bit_mask |
-    +----------+
-    | B'0110'  |
-    +----------+
-    SELECT 1 row in set (... sec)
-
-Inserting values that are either too short or too long results in an error::
-
-  cr> INSERT INTO my_table (
-  ...     bit_mask
-  ... ) VALUES (
-  ...    B'00101'
-  ... );
-  SQLParseException[bit string length 5 does not match type bit(4)]
-
-.. HIDE:
-
-    cr> DROP TABLE my_table;
-    DROP OK, 1 row affected (... sec)
-
-
 .. _data-type-json:
 
 ``json``
@@ -1743,6 +1676,79 @@ to days and hours::
         | ...           |
         +---------------+
         SELECT 1 row in set (... sec)
+
+
+.. _data-types-bit-strings:
+
+Bit strings
+-----------
+
+.. _data-type-bit:
+
+``BIT(n)``
+''''''''''
+
+A string representation of a bit sequence, useful for visualizing a `bit
+mask`_.
+
+Values of this type can be created using the bit string literal syntax. A bit
+string starts with the ``B`` prefix, followed by a sequence of ``0`` or ``1``
+digits quoted within single quotes ``'``.
+
+An example::
+
+  B'00010010'
+
+The optional length specification ``n`` is a positive :ref:`integer
+<type-numeric>` that defines the maximum length, in characters, of the
+values that have to be stored or cast. The minimum length is ``1``. The maximum
+length is defined by the upper :ref:`integer <type-numeric>` range.
+
+For example::
+
+  cr> CREATE TABLE my_table (
+  ...     bit_mask BIT(4)
+  ... );
+  CREATE OK, 1 row affected (... sec)
+
+::
+
+  cr> INSERT INTO my_table (
+  ...     bit_mask
+  ... ) VALUES (
+  ...     B'0110'
+  ... );
+  INSERT OK, 1 row affected  (... sec)
+
+.. HIDE:
+
+    cr> REFRESH TABLE my_table;
+    REFRESH OK, 1 row affected (... sec)
+
+::
+
+    cr> SELECT bit_mask FROM my_table;
+    +----------+
+    | bit_mask |
+    +----------+
+    | B'0110'  |
+    +----------+
+    SELECT 1 row in set (... sec)
+
+Inserting values that are either too short or too long results in an error::
+
+  cr> INSERT INTO my_table (
+  ...     bit_mask
+  ... ) VALUES (
+  ...    B'00101'
+  ... );
+  SQLParseException[bit string length 5 does not match type bit(4)]
+
+.. HIDE:
+
+    cr> DROP TABLE my_table;
+    DROP OK, 1 row affected (... sec)
+
 
 
 .. _data-types-ip-addresses:

@@ -121,14 +121,13 @@ following limitations:
   delayed until the ``Sync`` message is received
 
 
-.. _postgres-copy:
+.. _postgres-copy-na:
 
 Copy operations
 ---------------
 
-CrateDB does not support the distinct sub-protocol that is used to serve
-``COPY`` operations and provides another implementation for transferring bulk
-data using the :ref:`sql-copy-from` and :ref:`sql-copy-to` statements.
+CrateDB does not support the ``COPY`` sub-protocol, see also
+:ref:`postgres-copy`.
 
 
 .. _postgres-fn-call:
@@ -418,6 +417,16 @@ execution engine address different requirements (see :ref:`Clustering
 The listed features below cover the main differences in implementation and
 dialect between CrateDB and PostgreSQL. A detailed comparison between CrateDB's
 SQL dialect and standard SQL is defined in :ref:`appendix-compatibility`.
+
+
+.. _postgres-copy:
+
+Copy operations
+---------------
+
+CrateDB does not support the distinct sub-protocol that is used to serve
+``COPY`` operations and provides another implementation for transferring bulk
+data using the :ref:`sql-copy-from` and :ref:`sql-copy-to` statements.
 
 
 .. _postgres-expressions:

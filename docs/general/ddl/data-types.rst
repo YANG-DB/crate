@@ -359,6 +359,10 @@ Values of this type can be created using the bit string literal syntax. A bit
 string starts with the ``B`` prefix, followed by a sequence of ``0`` or ``1``
 digits quoted within single quotes ``'``.
 
+An example::
+
+  B'00010010'
+
 The optional length specification ``n`` is a positive :ref:`integer
 <type-numeric>` that defines the maximum length, in characters, of the
 values that have to be stored or cast. The minimum length is ``1``. The maximum
@@ -1379,9 +1383,11 @@ Limited to 12 bytes, with a time range from ``00:00:00.000000`` to
 
 .. NOTE::
 
-    The ``DATE`` type is only supported as a type literal (i.e., for use in
+    The ``TIME`` type is only supported as a type literal (i.e., for use in
     SQL :ref:`expressions <gloss-expression>`, like a :ref:`type cast
     <data-types-casting-exp>`, as below).
+
+    You cannot create table columns of type ``TIME``.
 
 Times can be expressed as string literals (e.g., ``'13:00:00'``) with the
 following syntax:
@@ -1557,6 +1563,8 @@ since the Unix epoch.
     The ``DATE`` type is only supported as a type literal (i.e., for use in
     SQL :ref:`expressions <gloss-expression>`, like a :ref:`type cast
     <data-types-casting-exp>`, as below).
+
+    You cannot create table columns of type ``DATE``.
 
 Dates can be expressed as string literals (e.g., ``'2021-03-09'``) with the
 following syntax:

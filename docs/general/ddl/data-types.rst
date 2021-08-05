@@ -81,11 +81,11 @@ Insert a record without specifying ``surname``::
     ... ) VALUES (
     ...     'Alice'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
-    cr> REFRESH TABLE my_table;
+    cr> REFRESH TABLE users;
     REFRESH OK, 1 row affected (... sec)
 
 The resulting row will have a ``NULL`` value for ``surname``::
@@ -151,28 +151,28 @@ Example::
     ... );
     CREATE OK, 1 row affected (... sec)
 
-TODO::
+::
 
     cr> INSERT INTO my_table (
-    ...     TODO
+    ...     first_column
     ... ) VALUES (
-    ...     'TODO'
+    ...     true
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
     cr> REFRESH TABLE my_table;
     REFRESH OK, 1 row affected (... sec)
 
-TODO::
+::
 
     cr> SELECT * FROM my_table;
-    +------------+
-    | TODO       |
-    +------------+
-    | Alice      |
-    +------------+
+    +--------------+
+    | first_column |
+    +--------------+
+    | TRUE         |
+    +--------------+
     SELECT 1 row in set (... sec)
 
 .. HIDE:
@@ -223,7 +223,7 @@ of the character data type results in an error.
 
     cr> CREATE TABLE users (
     ...     id VARCHAR,
-    ...     name VARCHAR(6)
+    ...     name VARCHAR(3)
     ... );
     CREATE OK, 1 row affected (... sec)
 
@@ -236,7 +236,7 @@ of the character data type results in an error.
     ...     '1',
     ...     'Alice Smith'
     ... );
-    SQLParseException['Alice Smith' is too long for the text type of length: 6]
+    SQLParseException['Alice Smith' is too long for the text type of length: 3]
 
 If the excess characters are all spaces, the string literal will be truncated
 to the specified length.
@@ -247,7 +247,7 @@ to the specified length.
     ...     id,
     ...     name
     ... ) VALUES (
-    ...     '2',
+    ...     '1',
     ...     'Bob     '
     ... );
     INSERT OK, 1 row affected (... sec)
@@ -302,35 +302,35 @@ see also :ref:`type aliases <data-types-postgres-aliases>`.
 A text-based basic type containing one or more characters. All unicode
 characters are allowed.
 
-::
+Create table
 
     cr> CREATE TABLE users (
     ...     name TEXT
     ... );
     CREATE OK, 1 row affected (... sec)
 
-TODO::
+Insert data::
 
     cr> INSERT INTO users (
     ...     name
     ... ) VALUES (
-    ...     'Alice'
+    ...     '🌻 Alice 🌻'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
     cr> REFRESH TABLE users;
     REFRESH OK, 1 row affected (... sec)
 
-TODO::
+Query data::
 
     cr> SELECT * FROM users;
-    +-------+
-    | name  |
-    +-------+
-    | Alice |
-    +-------+
+    +-------------+
+    | name        |
+    +-------------+
+    | 🌻 Alice 🌻 |
+    +-------------+
     SELECT 1 row in set (... sec)
 
 .. HIDE:
@@ -528,6 +528,11 @@ CrateDB supports the following numeric types:
         ... );
         INSERT OK, 1 row affected (... sec)
 
+    .. HIDE:
+
+        cr> REFRESH TABLE my_table;
+        REFRESH OK, 1 row affected (... sec)
+
     ::
 
         cr> SELECT
@@ -570,7 +575,7 @@ Example::
     ... ) VALUES (
     ...     32767
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -616,7 +621,7 @@ Example::
     ... ) VALUES (
     ...     2147483647
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -664,7 +669,7 @@ Example:
     ... ) VALUES (
     ...     9223372036854775807
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -771,7 +776,7 @@ Example:
     ... ) VALUES (
     ...     3.4028235e+38
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. TIP::
 
@@ -792,6 +797,14 @@ Example:
     +---------------+
     SELECT 1 row in set (... sec)
 
+.. HIDE:
+
+    cr> DELETE FROM my_table;
+    DELETE OK, 1 row affected  (... sec)
+
+    cr> REFRESH TABLE my_table;
+    REFRESH OK, 1 row affected  (... sec)
+
 You can insert values which exceed the maximum precision, like so::
 
     cr> INSERT INTO my_table (
@@ -799,7 +812,7 @@ You can insert values which exceed the maximum precision, like so::
     ... ) VALUES (
     ...     3.4028234664e+38
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -853,7 +866,7 @@ Example:
     ... ) VALUES (
     ...     1.7976931348623157e+308
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. TIP::
 
@@ -869,11 +882,19 @@ Example:
 
     cr> SELECT number FROM my_table;
     +-------------------------+
-    | TODO                    |
+    | number                  |
     +-------------------------+
     | 1.7976931348623157e+308 |
     +-------------------------+
     SELECT 1 row in set (... sec)
+
+.. HIDE:
+
+    cr> DELETE FROM my_table;
+    DELETE OK, 1 row affected  (... sec)
+
+    cr> REFRESH TABLE my_table;
+    REFRESH OK, 1 row affected (... sec)
 
 You can insert values which exceed the maximum precision, like so::
 
@@ -882,7 +903,7 @@ You can insert values which exceed the maximum precision, like so::
     ... ) VALUES (
     ...     1.79769313486231572014e+308
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -1049,7 +1070,7 @@ Example::
     ...     '1970-01-02T00:00:00',
     ...     '1970-01-02T00:00:00+01:00'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -1069,7 +1090,7 @@ Example::
     +----------+----------+
     SELECT 1 row in set (... sec)
 
-You can use :ref:`data_format() <scalar-date_format>` to make the output
+You can use :ref:`date_format() <scalar-date_format>` to make the output
 easier to read::
 
     cr> SELECT
@@ -1091,7 +1112,7 @@ timestamp into UTC prior to insertion. Contrast this with the behavior of
 .. HIDE:
 
     cr> DROP TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
+    DROP OK, 1 row affected  (... sec)
 
 .. NOTE::
 
@@ -1138,14 +1159,14 @@ Example::
     ...     '1970-01-02T00:00:00',
     ...     '1970-01-02T00:00:00+01:00'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
     cr> REFRESH TABLE my_table;
     REFRESH OK, 1 row affected (... sec)
 
-Using the :ref:`data_format() <scalar-date_format>` function, for readability::
+Using the :ref:`date_format() <scalar-date_format>` function, for readability::
 
     cr> SELECT
     ...     date_format('%Y-%m-%dT%H:%i', ts_1) AS ts_1,
@@ -1166,7 +1187,7 @@ literal. Contrast this with the behavior of :ref:`WITH TIME ZONE
 .. HIDE:
 
     cr> DROP TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
+    DROP OK, 1 row affected (... sec)
 
 .. CAUTION::
 
@@ -1228,14 +1249,14 @@ Example::
     ... ) VALUES (
     ...     '1970-01-02T00:00:00'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
     cr> REFRESH TABLE my_table;
     REFRESH OK, 1 row affected (... sec)
 
-Using the :ref:`data_format() <scalar-date_format>` function, for readability::
+Using the :ref:`date_format() <scalar-date_format>` function, for readability::
 
     cr> SELECT date_format(
     ...     '%Y-%m-%dT%H:%i', ts_tz AT TIME ZONE '+01:00'
@@ -1253,9 +1274,9 @@ Using the :ref:`data_format() <scalar-date_format>` function, for readability::
     The ``AT TIME ZONE`` clause does the same as the :ref:`timezone()
     <scalar-timezone>` function::
 
-        cr> SELECT date_format(
-        ...     '%Y-%m-%dT%H:%i', timezone('+01:00', ts_tz)
-        ... ) AS ts
+        cr> SELECT
+        ...     date_format('%Y-%m-%dT%H:%i', ts_tz AT TIME ZONE '+01:00') AS ts_1,
+        ...     date_format('%Y-%m-%dT%H:%i', timezone('+01:00', ts_tz)) AS ts_2
         ... FROM my_table;
         +------------------+------------------+
         | ts_1             | ts_2             |
@@ -1267,7 +1288,7 @@ Using the :ref:`data_format() <scalar-date_format>` function, for readability::
 .. HIDE:
 
     cr> DROP TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
+    DROP OK, 1 row affected (... sec)
 
 
 .. _type-timestamp-at-tz-add:
@@ -1294,14 +1315,14 @@ Example::
     ... ) VALUES (
     ...     '1970-01-02T00:00:00'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
     cr> REFRESH TABLE my_table;
     REFRESH OK, 1 row affected (... sec)
 
-Using the :ref:`data_format() <scalar-date_format>` function, for readability::
+Using the :ref:`date_format() <scalar-date_format>` function, for readability::
 
     cr> SELECT date_format(
     ...     '%Y-%m-%dT%H:%i', ts AT TIME ZONE '+01:00'
@@ -1333,7 +1354,7 @@ Using the :ref:`data_format() <scalar-date_format>` function, for readability::
 .. HIDE:
 
     cr> DROP TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
+    DROP OK, 1 row affected (... sec)
 
 
 .. _type-time:
@@ -1425,7 +1446,7 @@ Here's an example that uses fractional seconds::
 
     cr> SELECT '13:59:59.999999'::TIMETZ as t_tz;
     +------------------+
-    | 13:59:59.999999  |
+    | t_tz             |
     +------------------+
     | [50399999999, 0] |
     +------------------+
@@ -1549,7 +1570,7 @@ following syntax:
     For more information about date and time formatting, see `Java 15\:
     Patterns for Formatting and Parsing`_.
 
-For example, using the :ref:`data_format() <scalar-date_format>` function, for
+For example, using the :ref:`date_format() <scalar-date_format>` function, for
 readability::
 
 
@@ -1607,11 +1628,11 @@ For example::
 Intervals can be positive or negative::
 
     cr> SELECT INTERVAL -'1' DAY AS result;
-    +-----------------+
-    | result          |
-    +-----------------+
-    | -1 day 00:00:00 |
-    +-----------------+
+    +------------------+
+    | result           |
+    +------------------+
+    | -1 days 00:00:00 |
+    +------------------+
     SELECT 1 row in set (... sec)
 
 When using ``SECOND``, you can define fractions of a seconds (with a precision
@@ -1707,11 +1728,11 @@ to days and hours::
     For example, to calculate a timestamp corresponding to exactly one day ago,
     use::
 
-        cr>  SELECT CURRENT_TIMESTAMP - INTERVAL '1' DAY AS result;
+        cr> SELECT CURRENT_TIMESTAMP - INTERVAL '1' DAY AS result;
         +---------------+
         | result        |
         +---------------+
-        | 1623847247282 |
+        | ...           |
         +---------------+
         SELECT 1 row in set (... sec)
 
@@ -1761,13 +1782,13 @@ For example::
 
 ::
 
-    cr> SELECT fqdn, ip_addr FROM my_table;
-    +--------------+---------------+
-    | fqdn         | ip_addr       |
-    +--------------+---------------+
-    | router.local | 192.168.0.100 |
-    | localhost    | 127.0.0.1     |
-    +--------------+---------------+
+    cr> SELECT fqdn, ip_addr FROM my_table ORDER BY fqdn;
+    +--------------+------------------------+
+    | fqdn         | ip_addr                |
+    +--------------+------------------------+
+    | localhost    | 127.0.0.1              |
+    | router.local | 0:0:0:0:0:ffff:c0a8:64 |
+    +--------------+------------------------+
     SELECT 2 rows in set (... sec)
 
 The ``fqdn`` column (see `Fully Qualified Domain Name`_) will accept any value
@@ -1879,7 +1900,7 @@ Example::
     ...         }
     ...     }
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -2018,7 +2039,7 @@ You can insert using the existing columns::
     ...         "length" = 3
     ...     }
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 Or you can add new columns::
 
@@ -2033,7 +2054,7 @@ Or you can add new columns::
     ...         "chapter" = 1
     ...     }
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
@@ -2054,7 +2075,7 @@ records will be returned as :ref:`NULL <type-null>` values::
     |       1 | DRINK ME                 |
     |    NULL | Curiouser and curiouser! |
     +---------+--------------------------+
-    SELECT 2 rows in set (0.114 sec)
+    SELECT 2 rows in set (... sec)
 
 New columns are usable like any other subcolumn. You can retrieve them, sort by
 them, and use them in where clauses.
@@ -2062,7 +2083,7 @@ them, and use them in where clauses.
 .. HIDE:
 
     cr> DROP TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
+    DROP OK, 1 row affected (... sec)
 
 .. NOTE::
 
@@ -2121,6 +2142,7 @@ Example::
     ...         }
     ...     }
     ... );
+    INSERT OK, 1 row affected  (... sec)
 
 ::
 
@@ -2135,6 +2157,7 @@ Example::
     ...         "size" = 'As big as a room'
     ...     }
     ... );
+    INSERT OK, 1 row affected  (... sec)
 
 .. HIDE:
 
@@ -2146,53 +2169,32 @@ Example::
     cr> SELECT
     ...     protagonist['name'] as name,
     ...     protagonist['chapter'] as chapter,
-    ...     pg_typeof(protagonist['size']) as size
+    ...     protagonist['size'] as size
     ... FROM my_table
     ... ORDER BY protagonist['chapter'] ASC;
-    +-------------------------------+
-    | payload                       |
-    +-------------------------------+
-    | {"tag": "AT", "value": 30}    |
-    | {"tag": "AT", "value": "str"} |
-    +-------------------------------+
+    +-------+---------+----------------------------------+
+    | name  | chapter | size                             |
+    +-------+---------+----------------------------------+
+    | Alice |       1 | {"units": "inches", "value": 10} |
+    | Alice |       2 | As big as a room                 |
+    +-------+---------+----------------------------------+
     SELECT 2 rows in set (... sec)
 
-::
+Reflecting the types of the columns::
 
-    cr> CREATE TABLE my_table (
-    ...     TODO TEXT
-    ... );
-    CREATE OK, 1 row affected (... sec)
-
-TODO::
-
-    cr> INSERT INTO my_table (
-    ...     TODO
-    ... ) VALUES (
-    ...     'TODO'
-    ... );
-    CREATE OK, 1 row affected (... sec)
-
-.. HIDE:
-
-    cr> REFRESH TABLE my_table;
-    REFRESH OK, 1 row affected (... sec)
-
-TODO::
-
-    cr> SELECT * FROM my_table;
-    +--------------+
-    | TODO         |
-    +--------------+
-    | TODO         |
-    +--------------+
-    SELECT 1 row in set (... sec)
-
-.. HIDE:
-
-    cr> DROP TABLE my_table;
-    DROP OK, 1 row affected (... sec)
-
+    cr> SELECT
+    ...     pg_typeof(protagonist['name']) as name_type,
+    ...     pg_typeof(protagonist['chapter']) as chapter_type,
+    ...     pg_typeof(protagonist['size']) as size_type
+    ... FROM my_table
+    ... ORDER BY protagonist['chapter'] ASC;
+    +-----------+--------------+-----------+
+    | name_type | chapter_type | size_type |
+    +-----------+--------------+-----------+
+    | text      | smallint     | undefined |
+    | text      | smallint     | undefined |
+    +-----------+--------------+-----------+
+    SELECT 2 rows in set (... sec)
 
 .. NOTE::
 
@@ -2209,29 +2211,31 @@ TODO::
     to add an explicit type cast because there is no type information available
     in the schema.
 
-    An example:
-    ::
+    An example::
 
-     cr> SELECT id, payload FROM metrics ORDER BY payload['value']::TEXT DESC;
-     +----+-------------------------------+
-     | id | payload                       |
-     +----+-------------------------------+
-     | 2  | {"tag": "AT", "value": "str"} |
-     | 1  | {"tag": "AT", "value": 30}    |
-     +----+-------------------------------+
+     cr> SELECT
+     ...     protagonist['name'] as name,
+     ...     protagonist['chapter'] as chapter,
+     ...     protagonist['size'] as size
+     ... FROM my_table
+     ... ORDER BY protagonist['size']::TEXT ASC;
+     +-------+---------+----------------------------------+
+     | name  | chapter | size                             |
+     +-------+---------+----------------------------------+
+     | Alice |       2 | As big as a room                 |
+     | Alice |       1 | {"units": "inches", "value": 10} |
+     +-------+---------+----------------------------------+
      SELECT 2 rows in set (... sec)
 
     Given that it is possible have values of different types within the same
-    sub-column of an ignored objects, aggregations may fail at runtime:
+    sub-column of an ignored objects, aggregations may fail at runtime::
 
-    ::
-
-     cr> SELECT SUM(payload['value']::BIGINT) FROM metrics;
-     SQLParseException[Cannot cast value `str` to type `bigint`]
+     cr> SELECT protagonist['size']::BIGINT FROM my_table ORDER BY protagonist['chapter'] LIMIT 1;
+     SQLParseException[Cannot cast value `{value=10, units=inches}` to type `bigint`]
 
 .. HIDE:
 
-    cr> DROP TABLE metrics;
+    cr> DROP TABLE my_table;
     DROP OK, 1 row affected (... sec)
 
 
@@ -2380,38 +2384,33 @@ Array types are defined as follows::
 
 ::
 
-    cr> CREATE TABLE my_table (
-    ...     TODO TEXT
-    ... );
-    CREATE OK, 1 row affected (... sec)
-
-TODO::
-
-    cr> INSERT INTO my_table (
-    ...     TODO
+    cr> INSERT INTO my_table_arrays (
+    ...     tags,
+    ...     objects
     ... ) VALUES (
-    ...     'TODO'
+    ...     ['foo', 'bar'],
+    ...     [{"name" = 'Alice', "age" = 33}, {"name" = 'Bob', "age" = 45}]
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
-    cr> REFRESH TABLE my_table;
+    cr> REFRESH TABLE my_table_arrays;
     REFRESH OK, 1 row affected (... sec)
 
-TODO::
+::
 
-    cr> SELECT * FROM my_table;
-    +--------------+
-    | TODO         |
-    +--------------+
-    | TODO         |
-    +--------------+
+    cr> SELECT * FROM my_table_arrays;
+    +----------------+------------------------------------------------------------+
+    | tags           | objects                                                    |
+    +----------------+------------------------------------------------------------+
+    | ["foo", "bar"] | [{"age": 33, "name": "Alice"}, {"age": 45, "name": "Bob"}] |
+    +----------------+------------------------------------------------------------+
     SELECT 1 row in set (... sec)
 
 .. HIDE:
 
-    cr> DROP TABLE my_table;
+    cr> DROP TABLE my_table_arrays;
     DROP OK, 1 row affected (... sec)
 
 
@@ -2516,12 +2515,16 @@ Geometric points
 A ``GEO_POINT`` is a :ref:`geographic data type <data-types-geo>` used to store
 latitude and longitude coordinates.
 
-Columns with the ``GEO_POINT`` type are represented and inserted using an array
-of doubles in the following format::
+To define a ``GEO_POINT`` column, use::
+
+    <columnName> GEO_POINT
+
+Values for columns with the ``GEO_POINT`` type are represented and inserted
+using an array of doubles in the following format::
 
     [<lon_value>, <lat_value>]
 
-Alternatively a `WKT`_ string can also be used to declare geo points::
+Alternatively, a `WKT`_ string can also be used to declare geo points::
 
     'POINT ( <lon_value> <lat_value> )'
 
@@ -2533,48 +2536,51 @@ Alternatively a `WKT`_ string can also be used to declare geo points::
     recognize neither WKT strings nor double arrays. That means columns of type
     ``GEO_POINT`` must always be declared beforehand.
 
-Create table example::
+An example::
 
-    cr> CREATE TABLE my_table_geopoint (
+    cr> CREATE TABLE my_table_geo (
     ...   id INTEGER PRIMARY KEY,
     ...   pin GEO_POINT
     ... ) WITH (number_of_replicas = 0)
     CREATE OK, 1 row affected (... sec)
 
-::
+Insert using ARRAY syntax::
 
-    cr> CREATE TABLE my_table (
-    ...     TODO TEXT
-    ... );
-    CREATE OK, 1 row affected (... sec)
-
-TODO::
-
-    cr> INSERT INTO my_table (
-    ...     TODO
+    cr> INSERT INTO my_table_geo (
+    ...     id, pin
     ... ) VALUES (
-    ...     'TODO'
+    ...     1, [13.46738, 52.50463]
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
+
+Insert using WKT syntax::
+
+    cr> INSERT INTO my_table_geo (
+    ...     id, pin
+    ... ) VALUES (
+    ...     2, 'POINT (9.7417 47.4108)'
+    ... );
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
-    cr> REFRESH TABLE my_table;
+    cr> REFRESH TABLE my_table_geo;
     REFRESH OK, 1 row affected (... sec)
 
-TODO::
+Query data::
 
-    cr> SELECT * FROM my_table;
-    +--------------+
-    | TODO         |
-    +--------------+
-    | TODO         |
-    +--------------+
-    SELECT 1 row in set (... sec)
+    cr> SELECT * FROM my_table_geo;
+    +----+-----------------------------------------+
+    | id | pin                                     |
+    +----+-----------------------------------------+
+    |  1 | [13.467379929497838, 52.50462996773422] |
+    |  2 | [9.741699993610382, 47.410799972712994] |
+    +----+-----------------------------------------+
+    SELECT 2 rows in set (... sec)
 
 .. HIDE:
 
-    cr> DROP TABLE my_table;
+    cr> DROP TABLE my_table_geo;
     DROP OK, 1 row affected (... sec)
 
 
@@ -2594,49 +2600,52 @@ A ``geo_shape`` is a :ref:`geographic data type <data-types-geo>` used to store
 2D shapes defined as `GeoJSON geometry objects`_.
 
 A ``GEO_SHAPE`` column can store different kinds of `GeoJSON geometry
-objects`_. Thus it is possible to store e.g. ``LineString`` and
+objects`_, namely "Point", "MultiPoint", "LineString", "MultiLineString",
+"Polygon", "MultiPolygon", and "GeometryCollection".
+
+Thus it is possible to store e.g. ``Point``, ``LineString``, and
 ``MultiPolygon`` shapes in the same column.
 
-.. NOTE::
+.. CAUTION::
 
-    3D coordinates are not supported.
+    - 3D coordinates are not supported.
+    - Empty ``Polygon`` and ``LineString`` geo shapes are not supported.
 
-    Empty ``Polygon`` and ``LineString`` geo shapes are not supported.
+An example::
+
+    cr> CREATE TABLE my_table_geo (
+    ...   id INTEGER PRIMARY KEY,
+    ...   area GEO_SHAPE
+    ... ) WITH (number_of_replicas = 0)
+    CREATE OK, 1 row affected (... sec)
 
 ::
 
-    cr> CREATE TABLE my_table (
-    ...     TODO TEXT
-    ... );
-    CREATE OK, 1 row affected (... sec)
-
-TODO::
-
-    cr> INSERT INTO my_table (
-    ...     TODO
+    cr> INSERT INTO my_table_geo (
+    ...     id, area
     ... ) VALUES (
-    ...     'TODO'
+    ...     1, 'POLYGON ((5 5, 10 5, 10 10, 5 10, 5 5))'
     ... );
-    CREATE OK, 1 row affected (... sec)
+    INSERT OK, 1 row affected (... sec)
 
 .. HIDE:
 
-    cr> REFRESH TABLE my_table;
+    cr> REFRESH TABLE my_table_geo;
     REFRESH OK, 1 row affected (... sec)
 
-TODO::
+::
 
-    cr> SELECT * FROM my_table;
-    +--------------+
-    | TODO         |
-    +--------------+
-    | TODO         |
-    +--------------+
+    cr> SELECT * FROM my_table_geo;
+    +----+--------------------------------------------------------------------------------------------------------+
+    | id | area                                                                                                   |
+    +----+--------------------------------------------------------------------------------------------------------+
+    |  1 | {"coordinates": [[[5.0, 5.0], [5.0, 10.0], [10.0, 10.0], [10.0, 5.0], [5.0, 5.0]]], "type": "Polygon"} |
+    +----+--------------------------------------------------------------------------------------------------------+
     SELECT 1 row in set (... sec)
 
 .. HIDE:
 
-    cr> DROP TABLE my_table;
+    cr> DROP TABLE my_table_geo;
     DROP OK, 1 row affected (... sec)
 
 
@@ -2645,14 +2654,12 @@ TODO::
 Geo shape column definition
 ...........................
 
-To define a ``GEO_SHAPE`` column::
+To define a ``GEO_SHAPE`` column, use::
 
-    <columnName> geo_shape
+    <columnName> GEO_SHAPE
 
 A geographical index with default parameters is created implicitly to allow for
-geographical queries.
-
-The default definition for the column type is::
+geographical queries. Its default parameters are::
 
     <columnName> GEO_SHAPE INDEX USING geohash
         WITH (precision='50m', distance_error_pct=0.025)
@@ -2742,7 +2749,7 @@ fractions of millimeters.
 Geo shape literals
 ..................
 
-Columns with the ``GEO_SHAPE`` type are represented and inserted as object
+Columns with the ``GEO_SHAPE`` type are represented and inserted as an object
 containing a valid `GeoJSON`_ geometry object::
 
     {
@@ -2771,6 +2778,64 @@ well::
     :ref:`sql-alter-table`.
 
 
+.. _type-geo_shape-geojson-examples:
+
+Geo shape GeoJSON examples
+..........................
+
+Those are examples showing how to insert all possible kinds of GeoJSON types
+using `WKT`_ syntax.
+
+::
+
+    cr> CREATE TABLE my_table_geo (
+    ...   id INTEGER PRIMARY KEY,
+    ...   area GEO_SHAPE
+    ... ) WITH (number_of_replicas = 0)
+    CREATE OK, 1 row affected (... sec)
+
+::
+
+    cr> INSERT INTO my_table_geo (
+    ...     id, area
+    ... ) VALUES
+    ...     (1, 'POINT (9.7417 47.4108)'),
+    ...     (2, 'MULTIPOINT (47.4108 9.7417, 9.7483 47.4106)'),
+    ...     (3, 'LINESTRING (47.4108 9.7417, 9.7483 47.4106)'),
+    ...     (4, 'MULTILINESTRING ((47.4108 9.7417, 9.7483 47.4106), (52.50463 13.46738, 52.51000 13.47000))'),
+    ...     (5, 'POLYGON ((47.4108 9.7417, 9.7483 47.4106, 9.7426 47.4142, 47.4108 9.7417))'),
+    ...     (6, 'MULTIPOLYGON (((5 5, 10 5, 10 10, 5 5)), ((6 6, 10 5, 10 10, 6 6)))'),
+    ...     (7, 'GEOMETRYCOLLECTION (POINT (9.7417 47.4108), MULTIPOINT (47.4108 9.7417, 9.7483 47.4106))')
+    ... ;
+    INSERT OK, 7 rows affected (... sec)
+
+.. HIDE:
+
+    cr> REFRESH TABLE my_table_geo;
+    REFRESH OK, 1 row affected (... sec)
+
+::
+
+    cr> SELECT * FROM my_table_geo ORDER BY id;
+    +----+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | id | area                                                                                                                                                                               |
+    +----+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    |  1 | {"coordinates": [9.7417, 47.4108], "type": "Point"}                                                                                                                                |
+    |  2 | {"coordinates": [[47.4108, 9.7417], [9.7483, 47.4106]], "type": "MultiPoint"}                                                                                                      |
+    |  3 | {"coordinates": [[47.4108, 9.7417], [9.7483, 47.4106]], "type": "LineString"}                                                                                                      |
+    |  4 | {"coordinates": [[[47.4108, 9.7417], [9.7483, 47.4106]], [[52.50463, 13.46738], [52.51, 13.47]]], "type": "MultiLineString"}                                                       |
+    |  5 | {"coordinates": [[[47.4108, 9.7417], [9.7483, 47.4106], [9.7426, 47.4142], [47.4108, 9.7417]]], "type": "Polygon"}                                                                 |
+    |  6 | {"coordinates": [[[[5.0, 5.0], [10.0, 5.0], [10.0, 10.0], [5.0, 5.0]]], [[[6.0, 6.0], [10.0, 5.0], [10.0, 10.0], [6.0, 6.0]]]], "type": "MultiPolygon"}                            |
+    |  7 | {"geometries": [{"coordinates": [9.7417, 47.4108], "type": "Point"}, {"coordinates": [[47.4108, 9.7417], [9.7483, 47.4106]], "type": "MultiPoint"}], "type": "GeometryCollection"} |
+    +----+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    SELECT 7 rows in set (... sec)
+
+.. HIDE:
+
+    cr> DROP TABLE my_table_geo;
+    DROP OK, 1 row affected (... sec)
+
+
 .. _data-types-postgres:
 
 PostgreSQL compatibility
@@ -2793,7 +2858,7 @@ For example, in a type cast::
 
   cr> SELECT 10::INT2 AS INT2;
   +------+
-  | INT2 |
+  | int2 |
   +------+
   |   10 |
   +------+
@@ -2962,12 +3027,12 @@ Example usages:
 
 ::
 
-    cr> SELECT CAST(port['http'] AS BOOLEAN) FROM sys.nodes LIMIT 1;
-    +-------------------------------+
-    | CAST(port['http'] AS BOOLEAN) |
-    +-------------------------------+
-    | TRUE                          |
-    +-------------------------------+
+    cr> SELECT CAST(port['http'] AS BOOLEAN) AS col FROM sys.nodes LIMIT 1;
+    +------+
+    | col  |
+    +------+
+    | TRUE |
+    +------+
     SELECT 1 row in set (... sec)
 
 ::
@@ -3020,7 +3085,7 @@ Example usages:
     +------+
     | col  |
     +------+
-    | true |
+    | TRUE |
     +------+
     SELECT 1 row in set (... sec)
 
@@ -3033,7 +3098,7 @@ Trying to cast a ``TEXT`` to ``INTEGER``, will fail with ``CAST`` if
     +-------------+
     | name_as_int |
     +-------------+
-    |        null |
+    |        NULL |
     +-------------+
     SELECT 1 row in set (... sec)
 

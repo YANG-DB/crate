@@ -2850,149 +2850,6 @@ using `WKT`_ syntax.
     DROP OK, 1 row affected (... sec)
 
 
-.. _data-types-postgres:
-
-PostgreSQL compatibility
-========================
-
-.. contents::
-   :local:
-   :depth: 1
-
-
-.. _data-types-postgres-aliases:
-
-Type aliases
-------------
-
-For compatibility with PostgreSQL we include some type aliases which can be
-used instead of the CrateDB specific type names.
-
-For example, in a type cast::
-
-  cr> SELECT 10::INT2 AS INT2;
-  +------+
-  | int2 |
-  +------+
-  |   10 |
-  +------+
-  SELECT 1 row in set (... sec)
-
-
-See the table below for a full list of aliases:
-
-+-----------------------+------------------------------+
-| Alias                 | CrateDB Type                 |
-+=======================+==============================+
-| ``SHORT``             | ``SMALLINT``                 |
-+-----------------------+------------------------------+
-| ``INT``               | ``INTEGER``                  |
-+-----------------------+------------------------------+
-| ``INT2``              | ``SMALLINT``                 |
-+-----------------------+------------------------------+
-| ``INT4``              | ``INTEGER``                  |
-+-----------------------+------------------------------+
-| ``INT8``              | ``BIGINT``                   |
-+-----------------------+------------------------------+
-| ``LONG``              | ``BIGINT``                   |
-+-----------------------+------------------------------+
-| ``STRING``            | ``TEXT``                     |
-+-----------------------+------------------------------+
-| ``VARCHAR``           | ``TEXT``                     |
-+-----------------------+------------------------------+
-| ``CHARACTER VARYING`` | ``TEXT``                     |
-+-----------------------+------------------------------+
-| ``NAME``              | ``TEXT``                     |
-+-----------------------+------------------------------+
-| ``REGPROC``           | ``TEXT``                     |
-+-----------------------+------------------------------+
-| ``BYTE``              | ``CHAR``                     |
-+-----------------------+------------------------------+
-| ``FLOAT``             | ``REAL``                     |
-+-----------------------+------------------------------+
-| ``FLOAT4``            | ``REAL``                     |
-+-----------------------+------------------------------+
-| ``FLOAT8``            | ``DOUBLE PRECISION``         |
-+-----------------------+------------------------------+
-| ``DOUBLE``            | ``DOUBLE PRECISION``         |
-+-----------------------+------------------------------+
-| ``TIMESTAMP``         | ``TIMESTAMP WITH TIME ZONE`` |
-+-----------------------+------------------------------+
-| ``TIMESTAMPTZ``       | ``TIMESTAMP WITH TIME ZONE`` |
-+-----------------------+------------------------------+
-
-.. NOTE::
-
-   The :ref:`PG_TYPEOF <scalar-pg_typeof>` system :ref:`function
-   <gloss-function>` can be used to resolve the data type of any
-   :ref:`expression <gloss-expression>`.
-
-.. _data-types-postgres-internal:
-
-Internal-use types
-------------------
-
-.. _type-char:
-
-``CHAR``
-''''''''
-A one-byte character used internally for enumeration items in the
-:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
-
-Specified as a signed integer in the range -128 to 127.
-
-.. _type-oid:
-
-``OID``
-'''''''
-An *Object Identifier* (OID). OIDS are used internally as primary keys in the
-:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
-
-The ``OID`` type is mapped to the :ref:`integer
-<type-numeric>` data type.
-
-.. _type-regproc:
-
-``REGPROC``
-'''''''''''
-An alias for the :ref:`oid <type-oid>` type.
-
-The ``REGPROC`` type is used by tables in the :ref:`postgres-pg_catalog`
-schema to reference functions in the `pg_proc`_ table.
-
-:ref:`Casting <data-types-casting>` a ``REGPROC`` type to a :ref:`type-text` or
-:ref:`integer <type-numeric>` type will result in the corresponding
-function name or ``oid`` value, respectively.
-
-.. _type-regclass:
-
-``REGCLASS``
-''''''''''''
-An alias for the :ref:`oid <type-oid>` type.
-
-The ``REGCLASS`` type is used by tables in the :ref:`postgres-pg_catalog`
-schema to reference relations in the `pg_class`_ table.
-
-:ref:`Casting <data-types-casting>` a ``REGCLASS`` type to a
-:ref:`type-text` or :ref:`integer <type-numeric>` type will result
-in the corresponding relation name or ``oid`` value, respectively.
-
-.. _type-oidvector:
-
-``OIDVECTOR``
-'''''''''''''
-The ``OIDVECTOR`` type is used to represent one or more :ref:`oid <type-oid>`
-values.
-
-This type is similar to an :ref:`array <data-types-arrays>` of integers.
-However, you cannot use it with any :ref:`scalar functions
-<scalar-functions>` or :ref:`expressions <gloss-expression>`.
-
-.. SEEALSO::
-
-    :ref:`PostgreSQL: Object Identifier (OID) types <type-oid>`
-
-
 .. _data-types-casting:
 
 Type casting
@@ -3152,6 +3009,149 @@ Example usages, initializing an ``INTEGER`` and a ``TIMESTAMP`` constant:
   This cast operation is limited to :ref:`primitive data types
   <data-types-primitive>` only. For complex types such as ``ARRAY`` or
   ``OBJECT``, use the :ref:`data-types-casting-fn` syntax.
+
+
+.. _data-types-postgres:
+
+PostgreSQL compatibility
+========================
+
+.. contents::
+   :local:
+   :depth: 1
+
+
+.. _data-types-postgres-aliases:
+
+Type aliases
+------------
+
+For compatibility with PostgreSQL we include some type aliases which can be
+used instead of the CrateDB specific type names.
+
+For example, in a type cast::
+
+  cr> SELECT 10::INT2 AS INT2;
+  +------+
+  | int2 |
+  +------+
+  |   10 |
+  +------+
+  SELECT 1 row in set (... sec)
+
+
+See the table below for a full list of aliases:
+
++-----------------------+------------------------------+
+| Alias                 | CrateDB Type                 |
++=======================+==============================+
+| ``SHORT``             | ``SMALLINT``                 |
++-----------------------+------------------------------+
+| ``INT``               | ``INTEGER``                  |
++-----------------------+------------------------------+
+| ``INT2``              | ``SMALLINT``                 |
++-----------------------+------------------------------+
+| ``INT4``              | ``INTEGER``                  |
++-----------------------+------------------------------+
+| ``INT8``              | ``BIGINT``                   |
++-----------------------+------------------------------+
+| ``LONG``              | ``BIGINT``                   |
++-----------------------+------------------------------+
+| ``STRING``            | ``TEXT``                     |
++-----------------------+------------------------------+
+| ``VARCHAR``           | ``TEXT``                     |
++-----------------------+------------------------------+
+| ``CHARACTER VARYING`` | ``TEXT``                     |
++-----------------------+------------------------------+
+| ``NAME``              | ``TEXT``                     |
++-----------------------+------------------------------+
+| ``REGPROC``           | ``TEXT``                     |
++-----------------------+------------------------------+
+| ``BYTE``              | ``CHAR``                     |
++-----------------------+------------------------------+
+| ``FLOAT``             | ``REAL``                     |
++-----------------------+------------------------------+
+| ``FLOAT4``            | ``REAL``                     |
++-----------------------+------------------------------+
+| ``FLOAT8``            | ``DOUBLE PRECISION``         |
++-----------------------+------------------------------+
+| ``DOUBLE``            | ``DOUBLE PRECISION``         |
++-----------------------+------------------------------+
+| ``TIMESTAMP``         | ``TIMESTAMP WITH TIME ZONE`` |
++-----------------------+------------------------------+
+| ``TIMESTAMPTZ``       | ``TIMESTAMP WITH TIME ZONE`` |
++-----------------------+------------------------------+
+
+.. NOTE::
+
+   The :ref:`PG_TYPEOF <scalar-pg_typeof>` system :ref:`function
+   <gloss-function>` can be used to resolve the data type of any
+   :ref:`expression <gloss-expression>`.
+
+.. _data-types-postgres-internal:
+
+Internal-use types
+------------------
+
+.. _type-char:
+
+``CHAR``
+''''''''
+A one-byte character used internally for enumeration items in the
+:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
+
+Specified as a signed integer in the range -128 to 127.
+
+.. _type-oid:
+
+``OID``
+'''''''
+An *Object Identifier* (OID). OIDS are used internally as primary keys in the
+:ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
+
+The ``OID`` type is mapped to the :ref:`integer
+<type-numeric>` data type.
+
+.. _type-regproc:
+
+``REGPROC``
+'''''''''''
+An alias for the :ref:`oid <type-oid>` type.
+
+The ``REGPROC`` type is used by tables in the :ref:`postgres-pg_catalog`
+schema to reference functions in the `pg_proc`_ table.
+
+:ref:`Casting <data-types-casting>` a ``REGPROC`` type to a :ref:`type-text` or
+:ref:`integer <type-numeric>` type will result in the corresponding
+function name or ``oid`` value, respectively.
+
+.. _type-regclass:
+
+``REGCLASS``
+''''''''''''
+An alias for the :ref:`oid <type-oid>` type.
+
+The ``REGCLASS`` type is used by tables in the :ref:`postgres-pg_catalog`
+schema to reference relations in the `pg_class`_ table.
+
+:ref:`Casting <data-types-casting>` a ``REGCLASS`` type to a
+:ref:`type-text` or :ref:`integer <type-numeric>` type will result
+in the corresponding relation name or ``oid`` value, respectively.
+
+.. _type-oidvector:
+
+``OIDVECTOR``
+'''''''''''''
+The ``OIDVECTOR`` type is used to represent one or more :ref:`oid <type-oid>`
+values.
+
+This type is similar to an :ref:`array <data-types-arrays>` of integers.
+However, you cannot use it with any :ref:`scalar functions
+<scalar-functions>` or :ref:`expressions <gloss-expression>`.
+
+.. SEEALSO::
+
+    :ref:`PostgreSQL: Object Identifier (OID) types <type-oid>`
 
 
 .. _BigDecimal documentation: https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/math/BigDecimal.html

@@ -7,8 +7,7 @@ Data types
 ==========
 
 Data can be stored in different formats. CrateDB has different types that can
-be specified if a table is created using the the :ref:`sql-create-table`
-statement.
+be specified if a table is created using the :ref:`sql-create-table` statement.
 
 Data types play a central role as they limit what kind of data can be inserted,
 how it is stored and they also influence the behaviour when the records are
@@ -684,7 +683,7 @@ represented by an unscaled value of the unlimited precision::
 
     NUMERIC
 
-The ``NUMERIC`` type backed internally by the Java ``BigDecimal`` class. For
+The ``NUMERIC`` type is internally backed by the Java ``BigDecimal`` class. For
 more detailed information about its behaviour, see `BigDecimal documentation`_.
 
 
@@ -1145,8 +1144,9 @@ literal. Contrast this with the behavior of :ref:`WITH TIME ZONE
 ``AT TIME ZONE``
 ................
 
-You can use the ``AT TIME ZONE`` clause to modify a timestamp in one of two
-different ways:
+You can use the ``AT TIME ZONE`` clause to modify a timestamp in two different
+ways. It converts a timestamp without time zone to a timestamp with time zone
+and vice versa.
 
 .. contents::
    :local:
@@ -1158,7 +1158,7 @@ different ways:
     use in SQL :ref:`expressions <gloss-expression>`, like a :ref:`type cast
     <data-types-casting-exp>`, as below).
 
-    You cannot create table columns of type ``NUMERIC``.
+    You cannot create table columns of type ``AT TIME ZONE``.
 
 
 .. _type-timestamp-tz-at-tz-convert:
@@ -1169,7 +1169,7 @@ Convert a timestamp time zone
 If you use ``AT TIME ZONE tz`` with a ``TIMESTAMP WITH TIME ZONE``, CrateDB
 will convert timestamp to time zone ``tz`` and cast the return value as a
 :ref:`TIMESTAMP WITHOUT TIME ZONE <type-timestamp-without-tz>` (which discards
-the the time zone information). This process effectively allows you to correct
+the time zone information). This process effectively allows you to correct
 the offset used to calculate UTC.
 
 Example::
@@ -2936,7 +2936,7 @@ Internal-use types
 
 ``CHAR``
 ''''''''
-A one-byte character used internally as for enumeration in the
+A one-byte character used internally for enumeration items in the
 :ref:`PostgreSQL system catalogs <postgres-pg_catalog>`.
 
 Specified as a signed integer in the range -128 to 127.

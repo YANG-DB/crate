@@ -213,7 +213,7 @@ length strings. All unicode characters are allowed.
 The optional length specification ``n`` is a positive :ref:`integer
 <type-numeric>` that defines the maximum length, in characters, of the
 values that have to be stored or cast. The minimum length is ``1``. The maximum
-length is defined by the upper :ref:`integer <type-numeric>` range.
+length is defined by the upper :ref:`integer <type-integer>` range.
 
 An attempt to store a string literal that exceeds the specified length
 of the character data type results in an error.
@@ -1702,7 +1702,7 @@ An example::
 The optional length specification ``n`` is a positive :ref:`integer
 <type-numeric>` that defines the maximum length, in characters, of the
 values that have to be stored or cast. The minimum length is ``1``. The maximum
-length is defined by the upper :ref:`integer <type-numeric>` range.
+length is defined by the upper :ref:`integer <type-integer>` range.
 
 For example::
 
@@ -3152,6 +3152,65 @@ However, you cannot use it with any :ref:`scalar functions
 .. SEEALSO::
 
     :ref:`PostgreSQL: Object Identifier (OID) types <type-oid>`
+
+
+.. _data-types-overview:
+
+Data types overview
+===================
+
+This section lists all data types supported by CrateDB at a glance in tabular
+form, including some facts about their physical sizes, value ranges and
+properties.
+
+.. list-table::
+    :header-rows: 1
+
+    * - Name
+      - Size
+      - Range
+      - Description
+    * - ``BOOLEAN``
+      - 1 byte
+      - ``true`` or ``false``
+      - boolean type
+    * - ``VARCHAR(n)``
+      - variable
+      - Minimum length: 1. Maximum length: 2^31-1 (upper :ref:`integer <type-integer>` range)
+      - Strings of variable length. All unicode characters are allowed.
+    * - ``SMALLINT``
+      - 2 bytes
+      - -32,768 to 32,767
+      - small-range integer
+    * - ``INTEGER``
+      - 4 bytes
+      - -2^31 to 2^31-1
+      - typical choice for integer
+    * - ``BIGINT``
+      - 8 bytes
+      - -2^63 to 2^63-1
+      - large-range integer
+    * - ``NUMERIC``
+      - variable
+      - up to 131072 digits before, and
+        up to 16383 digits after the decimal point
+      - user-specified precision, exact
+    * - ``REAL``
+      - 4 bytes
+      - 6 decimal digits precision
+      - inexact, variable-precision
+    * - ``DOUBLE PRECISION``
+      - 8 bytes
+      - 15 decimal digits precision
+      - inexact, variable-precision
+
+
+.. HIDE:
+
+   "timestamp without time zone AT TIME ZONE zone", "timestamp with time zone", "Treat \
+   given time stamp without time zone as located in the specified time zone"
+   "timestamp with time zone AT TIME ZONE zone", "timestamp without time zone", "Convert \
+   given time stamp with time zone to the new time zone, with no time zone designation"
 
 
 .. _BigDecimal documentation: https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/math/BigDecimal.html

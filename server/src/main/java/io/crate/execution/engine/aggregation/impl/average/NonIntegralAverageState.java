@@ -19,32 +19,31 @@
  * software solely pursuant to the terms of the relevant commercial agreement.
  */
 
-package io.crate.execution.engine.aggregation.impl;
+package io.crate.execution.engine.aggregation.impl.average;
 
-import io.crate.execution.engine.aggregation.impl.average.AverageAggregation;
-import io.crate.expression.AbstractFunctionModule;
-import io.crate.execution.engine.aggregation.AggregationFunction;
+import io.crate.execution.engine.aggregation.impl.KahanSummationForDouble;
 
-public class AggregationImplModule extends AbstractFunctionModule<AggregationFunction> {
+import javax.annotation.Nonnull;
+
+public class FractionalAverageState extends AverageState {
+
+    private final KahanSummationForDouble kahanSummationForDouble = new KahanSummationForDouble();
 
     @Override
-    public void configureFunctions() {
-        AverageAggregation.register(this);
-        MinimumAggregation.register(this);
-        MaximumAggregation.register(this);
-        ArbitraryAggregation.register(this);
+    public void addNumber(Number number) {
+        this.sum = kahanSummationForDouble.sum(this.sum, number.doubleValue());
+        this.count++;
+    }
 
-        SumAggregation.register(this);
-        NumericSumAggregation.register(this);
+    @Override
+    public void removeNumber(Number number) {
+        this.sum = kahanSummationForDouble.sum(this.sum, -number.doubleValue());
+        this.count--;
+    }
 
-        CountAggregation.register(this);
-        CollectSetAggregation.register(this);
-        PercentileAggregation.register(this);
-        StringAgg.register(this);
-        ArrayAgg.register(this);
-
-        VarianceAggregation.register(this);
-        GeometricMeanAggregation.register(this);
-        StandardDeviationAggregation.register(this);
+    @Override
+    public void reduce(@Nonnull AverageState other) {
+        this.sum = kahanSummationForDouble.sum(this.sum, other.sum);
+        this.count += other.count;
     }
 }

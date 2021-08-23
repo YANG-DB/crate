@@ -21,6 +21,7 @@
 
 package io.crate.execution.engine.aggregation.impl;
 
+import io.crate.execution.engine.aggregation.impl.average.AverageAggregation;
 import io.crate.expression.symbol.Literal;
 import io.crate.metadata.FunctionImplementation;
 import io.crate.metadata.SearchPath;

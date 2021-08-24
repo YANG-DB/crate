@@ -66,7 +66,7 @@ public class AverageStateType extends DataType<AverageState> implements Streamer
 
     @Override
     public AverageState readValueFrom(StreamInput in) throws IOException {
-        AverageState averageState = in.readBoolean() ? new IntegralAverageState() : new NonIntegralAverageState();
+        AverageState averageState = in.readBoolean() ? new IntegralAverageState() : new FractionalAverageState();
         averageState.sum = in.readDouble();
         averageState.count = in.readVLong();
         return averageState;

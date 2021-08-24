@@ -22,19 +22,13 @@
 package io.crate.execution.engine.aggregation.impl.average;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import io.crate.execution.engine.aggregation.impl.AggregationImplModule;
-import io.crate.types.ByteType;
-import io.crate.types.DataType;
-import io.crate.types.DataTypes;
-import io.crate.types.DoubleType;
-import io.crate.types.FloatType;
-import io.crate.types.IntegerType;
-import io.crate.types.LongType;
-import io.crate.types.ShortType;
+
 import org.apache.lucene.util.NumericUtils;
 import org.apache.lucene.util.RamUsageEstimator;
 import org.elasticsearch.Version;
@@ -52,6 +46,14 @@ import io.crate.memory.MemoryManager;
 import io.crate.metadata.Reference;
 import io.crate.metadata.doc.DocTableInfo;
 import io.crate.metadata.functions.Signature;
+import io.crate.types.ByteType;
+import io.crate.types.DataType;
+import io.crate.types.DataTypes;
+import io.crate.types.DoubleType;
+import io.crate.types.FloatType;
+import io.crate.types.IntegerType;
+import io.crate.types.LongType;
+import io.crate.types.ShortType;
 
 public class AverageAggregation extends AggregationFunction<AverageState, Double> {
 
@@ -76,21 +78,125 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                         functionName,
                         supportedType.getTypeSignature(),
                         DataTypes.DOUBLE.getTypeSignature()),
-                    (signature, boundSignature) ->
-                        new AverageAggregation(signature, boundSignature, supportedType)
+                    AverageAggregation :: new
                 );
             }
         }
     }
 
+    public static class AverageState implements Comparable<AverageState> {
+
+        public double sum = 0;
+        public long count = 0;
+
+        public Double value() {
+            if (count > 0) {
+                return sum / count;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public int compareTo(AverageState o) {
+            if (o == null) {
+                return 1;
+            } else {
+                int compare = Double.compare(sum, o.sum);
+                if (compare == 0) {
+                    return Long.compare(count, o.count);
+                }
+                return compare;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "sum: " + sum + " count: " + count;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            AverageState that = (AverageState) o;
+            return Objects.equals(that.value(), value());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value());
+        }
+    }
+
+    public static class AverageStateType extends DataType<AverageState>
+        implements FixedWidthType, Streamer<AverageState> {
+
+        public static final int ID = 1024;
+        private static final AverageStateType INSTANCE = new AverageStateType();
+        private static final int AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(AverageState.class);
+
+        @Override
+        public int id() {
+            return ID;
+        }
+
+        @Override
+        public Precedence precedence() {
+            return Precedence.CUSTOM;
+        }
+
+        @Override
+        public String getName() {
+            return "average_state";
+        }
+
+        @Override
+        public Streamer<AverageState> streamer() {
+            return this;
+        }
+
+        @Override
+        public AverageState sanitizeValue(Object value) {
+            return (AverageState) value;
+        }
+
+        @Override
+        public int compare(AverageState val1, AverageState val2) {
+            if (val1 == null) return -1;
+            return val1.compareTo(val2);
+        }
+
+        @Override
+        public AverageState readValueFrom(StreamInput in) throws IOException {
+            AverageState averageState = new AverageState();
+            averageState.sum = in.readDouble();
+            averageState.count = in.readVLong();
+            return averageState;
+        }
+
+        @Override
+        public void writeValueTo(StreamOutput out, AverageState v) throws IOException {
+            out.writeDouble(v.sum);
+            out.writeVLong(v.count);
+        }
+
+        @Override
+        public int fixedSize() {
+            return AVERAGE_STATE_SIZE;
+        }
+    }
+
     private final Signature signature;
     private final Signature boundSignature;
-    private final DataType<?> dataType;
 
-    AverageAggregation(Signature signature, Signature boundSignature, DataType<?> dataType) {
+    AverageAggregation(Signature signature, Signature boundSignature) {
         this.signature = signature;
         this.boundSignature = boundSignature;
-        this.dataType = dataType;
     }
 
     @Override
@@ -148,9 +254,22 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                                  Version indexVersionCreated,
                                  Version minNodeInCluster,
                                  MemoryManager memoryManager) {
-        var averageState = AverageState.of(dataType);
-        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(averageState.getClass()));
-        return averageState;
+        var dataType = signature.getArgumentDataTypes().get(0);
+        switch (dataType.id()) {
+            case DoubleType.ID:
+            case FloatType.ID:
+                ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(FractionalAverageState.class));
+                return new FractionalAverageState();
+            case LongType.ID:
+            case IntegerType.ID:
+            case ShortType.ID:
+            case ByteType.ID:
+            case TimestampType.ID_WITH_TZ:
+                ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(IntegralAverageState.class));
+                return new IntegralAverageState();
+            default:
+                throw new IllegalArgumentException(String.format(Locale.ENGLISH, "data type %s is not supported", dataType.getName()));
+        }
     }
 
     @Override
@@ -200,8 +319,8 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),
                     (ramAccounting, memoryManager, minNodeVersion) -> {
-                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(NonIntegralAverageState.class));
-                        return new NonIntegralAverageState();
+                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(FractionalAverageState.class));
+                        return new FractionalAverageState();
                     },
                     (values, state) -> {
                         var value = NumericUtils.sortableIntToFloat((int) values.nextValue());
@@ -212,8 +331,8 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),
                     (ramAccounting, memoryManager, minNodeVersion) -> {
-                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(NonIntegralAverageState.class));
-                        return new NonIntegralAverageState();
+                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(FractionalAverageState.class));
+                        return new FractionalAverageState();
                     },
                     (values, state) -> {
                         var value = NumericUtils.sortableLongToDouble((values.nextValue()));

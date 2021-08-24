@@ -22,8 +22,8 @@
 package io.crate.execution.engine.aggregation.impl.average;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -49,11 +49,11 @@ import io.crate.types.ByteType;
 import io.crate.types.DataType;
 import io.crate.types.DataTypes;
 import io.crate.types.DoubleType;
+import io.crate.types.FixedWidthType;
 import io.crate.types.FloatType;
 import io.crate.types.IntegerType;
 import io.crate.types.LongType;
 import io.crate.types.ShortType;
-import io.crate.types.TimestampType;
 
 public class AverageAggregation extends AggregationFunction<AverageState, Double> {
 
@@ -65,21 +65,33 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
         DataTypes.register(FractionalAverageStateType.ID, in -> FractionalAverageStateType.INSTANCE);
     }
 
-    static final List<DataType<?>> SUPPORTED_TYPES = Lists2.concat(
-        DataTypes.NUMERIC_PRIMITIVE_TYPES, DataTypes.TIMESTAMPZ);
+    static final List<DataType<?>> INTEGRAL_TYPES = List.of(DataTypes.TIMESTAMPZ, DataTypes.BYTE, DataTypes.SHORT, DataTypes.INTEGER, DataTypes.LONG);
+    static final List<DataType<?>> FRACTIONAL_TYPES = List.of(DataTypes.FLOAT, DataTypes.DOUBLE);
 
     /**
      * register as "avg" and "mean"
      */
     public static void register(AggregationImplModule mod) {
+
         for (var functionName : NAMES) {
-            for (var supportedType : SUPPORTED_TYPES) {
+            for (var supportedType : SUPPORTED_INTEGRAL_TYPES) {
                 mod.register(
                     Signature.aggregate(
                         functionName,
                         supportedType.getTypeSignature(),
                         DataTypes.DOUBLE.getTypeSignature()),
-                    AverageAggregation :: new
+                    (signature, boundSignature) ->
+                        new AverageAggregation(signature, boundSignature, () -> new IntegralAverageState(), () -> IntegralAverageStateType.INSTANCE)
+                );
+            }
+            for (var supportedType : SUPPORTED_FRACTIONAL_TYPES) {
+                mod.register(
+                    Signature.aggregate(
+                        functionName,
+                        supportedType.getTypeSignature(),
+                        DataTypes.DOUBLE.getTypeSignature()),
+                    (signature, boundSignature) ->
+                        new AverageAggregation(signature, boundSignature, () -> new FractionalAverageState(), () -> FractionalAverageStateType.INSTANCE)
                 );
             }
         }
@@ -87,10 +99,14 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
 
     private final Signature signature;
     private final Signature boundSignature;
+    private final Supplier<AverageState> stateSupplier;
+    private final Supplier<FixedWidthType> stateDateTypeSupplier;
 
-    AverageAggregation(Signature signature, Signature boundSignature) {
+    AverageAggregation(Signature signature, Signature boundSignature, Supplier<AverageState> stateSupplier, Supplier<FixedWidthType> stateDateTypeSupplier) {
         this.signature = signature;
         this.boundSignature = boundSignature;
+        this.stateSupplier = stateSupplier;
+        this.stateDateTypeSupplier = stateDateTypeSupplier;
     }
 
     @Override
@@ -148,40 +164,13 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                                  Version indexVersionCreated,
                                  Version minNodeInCluster,
                                  MemoryManager memoryManager) {
-        var dataType = signature.getArgumentDataTypes().get(0);
-        switch (dataType.id()) {
-            case DoubleType.ID:
-            case FloatType.ID:
-                ramAccounting.addBytes(FractionalAverageStateType.INSTANCE.fixedSize());
-                return new FractionalAverageState();
-            case LongType.ID:
-            case IntegerType.ID:
-            case ShortType.ID:
-            case ByteType.ID:
-            case TimestampType.ID_WITH_TZ:
-                ramAccounting.addBytes(IntegralAverageStateType.INSTANCE.fixedSize());
-                return new IntegralAverageState();
-            default:
-                throw new IllegalArgumentException(String.format(Locale.ENGLISH, "data type %s is not supported", dataType.getName()));
-        }
+        ramAccounting.addBytes(stateDateTypeSupplier.get().fixedSize());
+        return stateSupplier.get();
     }
 
     @Override
     public DataType<?> partialType() {
-        var dataType = signature.getArgumentDataTypes().get(0);
-        switch (dataType.id()) {
-            case DoubleType.ID:
-            case FloatType.ID:
-                return FractionalAverageStateType.INSTANCE;
-            case LongType.ID:
-            case IntegerType.ID:
-            case ShortType.ID:
-            case ByteType.ID:
-            case TimestampType.ID_WITH_TZ:
-                return IntegralAverageStateType.INSTANCE;
-            default:
-                throw new IllegalArgumentException(String.format(Locale.ENGLISH, "data type %s is not supported", dataType.getName()));
-        }
+        return (DataType<?>) stateDateTypeSupplier.get();
     }
 
     @Override

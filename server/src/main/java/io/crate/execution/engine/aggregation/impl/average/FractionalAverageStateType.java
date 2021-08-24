@@ -23,15 +23,19 @@ package io.crate.execution.engine.aggregation.impl.average;
 
 import io.crate.Streamer;
 import io.crate.types.DataType;
+import io.crate.types.FixedWidthType;
+import org.apache.lucene.util.RamUsageEstimator;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
 
 import java.io.IOException;
 
-public class AverageStateType extends DataType<AverageState> implements Streamer<AverageState> {
+public class FractionalAverageStateType extends DataType<AverageState> implements FixedWidthType, Streamer<AverageState> {
 
-    static final int ID = 1024;
-    static final AverageStateType INSTANCE = new AverageStateType();
+    static final int ID = 1026;
+    static final FractionalAverageStateType INSTANCE = new FractionalAverageStateType();
+    private static final int FRACTIONAL_AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(FractionalAverageStateType.class);
+
 
     @Override
     public int id() {
@@ -66,7 +70,7 @@ public class AverageStateType extends DataType<AverageState> implements Streamer
 
     @Override
     public AverageState readValueFrom(StreamInput in) throws IOException {
-        AverageState averageState = in.readBoolean() ? new IntegralAverageState() : new FractionalAverageState();
+        AverageState averageState = new FractionalAverageState();
         averageState.sum = in.readDouble();
         averageState.count = in.readVLong();
         return averageState;
@@ -74,6 +78,13 @@ public class AverageStateType extends DataType<AverageState> implements Streamer
 
     @Override
     public void writeValueTo(StreamOutput out, AverageState v) throws IOException {
-        v.writeTo(out);
+        out.writeDouble(v.sum);
+        out.writeVLong(v.count);
+    }
+
+    @Override
+    public int fixedSize() {
+        return FRACTIONAL_AVERAGE_STATE_SIZE;
     }
 }
+

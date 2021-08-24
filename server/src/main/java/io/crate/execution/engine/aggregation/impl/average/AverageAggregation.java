@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import io.crate.execution.engine.aggregation.impl.AggregationImplModule;
 
 import org.apache.lucene.util.NumericUtils;
-import org.apache.lucene.util.RamUsageEstimator;
 import org.elasticsearch.Version;
 import org.elasticsearch.index.mapper.MappedFieldType;
 
@@ -62,7 +61,8 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
     public static final String NAME = NAMES[0];
 
     static {
-        DataTypes.register(AverageStateType.ID, in -> AverageStateType.INSTANCE);
+        DataTypes.register(IntegralAverageStateType.ID, in -> IntegralAverageStateType.INSTANCE);
+        DataTypes.register(FractionalAverageStateType.ID, in -> FractionalAverageStateType.INSTANCE);
     }
 
     static final List<DataType<?>> SUPPORTED_TYPES = Lists2.concat(
@@ -152,14 +152,14 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
         switch (dataType.id()) {
             case DoubleType.ID:
             case FloatType.ID:
-                ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(FractionalAverageState.class));
+                ramAccounting.addBytes(FractionalAverageStateType.INSTANCE.fixedSize());
                 return new FractionalAverageState();
             case LongType.ID:
             case IntegerType.ID:
             case ShortType.ID:
             case ByteType.ID:
             case TimestampType.ID_WITH_TZ:
-                ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(IntegralAverageState.class));
+                ramAccounting.addBytes(IntegralAverageStateType.INSTANCE.fixedSize());
                 return new IntegralAverageState();
             default:
                 throw new IllegalArgumentException(String.format(Locale.ENGLISH, "data type %s is not supported", dataType.getName()));
@@ -168,7 +168,20 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
 
     @Override
     public DataType<?> partialType() {
-        return AverageStateType.INSTANCE;
+        var dataType = signature.getArgumentDataTypes().get(0);
+        switch (dataType.id()) {
+            case DoubleType.ID:
+            case FloatType.ID:
+                return FractionalAverageStateType.INSTANCE;
+            case LongType.ID:
+            case IntegerType.ID:
+            case ShortType.ID:
+            case ByteType.ID:
+            case TimestampType.ID_WITH_TZ:
+                return IntegralAverageStateType.INSTANCE;
+            default:
+                throw new IllegalArgumentException(String.format(Locale.ENGLISH, "data type %s is not supported", dataType.getName()));
+        }
     }
 
     @Override
@@ -202,7 +215,7 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),
                     (ramAccounting, memoryManager, minNodeVersion) -> {
-                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(IntegralAverageState.class));
+                        ramAccounting.addBytes(IntegralAverageStateType.INSTANCE.fixedSize());
                         return new IntegralAverageState();
                     },
                     (values, state) -> {
@@ -213,7 +226,7 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),
                     (ramAccounting, memoryManager, minNodeVersion) -> {
-                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(FractionalAverageState.class));
+                        ramAccounting.addBytes(FractionalAverageStateType.INSTANCE.fixedSize());
                         return new FractionalAverageState();
                     },
                     (values, state) -> {
@@ -225,7 +238,7 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),
                     (ramAccounting, memoryManager, minNodeVersion) -> {
-                        ramAccounting.addBytes(RamUsageEstimator.shallowSizeOfInstance(FractionalAverageState.class));
+                        ramAccounting.addBytes(FractionalAverageStateType.INSTANCE.fixedSize());
                         return new FractionalAverageState();
                     },
                     (values, state) -> {

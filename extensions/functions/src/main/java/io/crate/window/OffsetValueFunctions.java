@@ -83,7 +83,7 @@ public class OffsetValueFunctions implements WindowFunction {
         }
         /* from cached index, search from left to right for a non-null element.
            for 'lag', cache index will never go past idxInPartition(current index).
-           for 'lead', cache index may reach upperBoundExclusive. */
+           for 'lead', cache index may reach partitionEnd. */
         for (int i = cachedNonNullIndex + 1; i <= currentFrame.partitionEnd(); i++) {
             if (i == currentFrame.partitionEnd()) {
                 cachedNonNullIndex = null;

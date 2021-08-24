@@ -54,6 +54,7 @@ import io.crate.types.FloatType;
 import io.crate.types.IntegerType;
 import io.crate.types.LongType;
 import io.crate.types.ShortType;
+import io.crate.types.TimestampType;
 
 public class AverageAggregation extends AggregationFunction<AverageState, Double> {
 
@@ -81,113 +82,6 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                     AverageAggregation :: new
                 );
             }
-        }
-    }
-
-    public static class AverageState implements Comparable<AverageState> {
-
-        public double sum = 0;
-        public long count = 0;
-
-        public Double value() {
-            if (count > 0) {
-                return sum / count;
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public int compareTo(AverageState o) {
-            if (o == null) {
-                return 1;
-            } else {
-                int compare = Double.compare(sum, o.sum);
-                if (compare == 0) {
-                    return Long.compare(count, o.count);
-                }
-                return compare;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "sum: " + sum + " count: " + count;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            AverageState that = (AverageState) o;
-            return Objects.equals(that.value(), value());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value());
-        }
-    }
-
-    public static class AverageStateType extends DataType<AverageState>
-        implements FixedWidthType, Streamer<AverageState> {
-
-        public static final int ID = 1024;
-        private static final AverageStateType INSTANCE = new AverageStateType();
-        private static final int AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(AverageState.class);
-
-        @Override
-        public int id() {
-            return ID;
-        }
-
-        @Override
-        public Precedence precedence() {
-            return Precedence.CUSTOM;
-        }
-
-        @Override
-        public String getName() {
-            return "average_state";
-        }
-
-        @Override
-        public Streamer<AverageState> streamer() {
-            return this;
-        }
-
-        @Override
-        public AverageState sanitizeValue(Object value) {
-            return (AverageState) value;
-        }
-
-        @Override
-        public int compare(AverageState val1, AverageState val2) {
-            if (val1 == null) return -1;
-            return val1.compareTo(val2);
-        }
-
-        @Override
-        public AverageState readValueFrom(StreamInput in) throws IOException {
-            AverageState averageState = new AverageState();
-            averageState.sum = in.readDouble();
-            averageState.count = in.readVLong();
-            return averageState;
-        }
-
-        @Override
-        public void writeValueTo(StreamOutput out, AverageState v) throws IOException {
-            out.writeDouble(v.sum);
-            out.writeVLong(v.count);
-        }
-
-        @Override
-        public int fixedSize() {
-            return AVERAGE_STATE_SIZE;
         }
     }
 

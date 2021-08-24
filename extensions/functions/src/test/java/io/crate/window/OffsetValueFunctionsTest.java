@@ -418,4 +418,17 @@ public class OffsetValueFunctionsTest extends AbstractWindowFunctionTest {
         );
     }
 
+    @Test
+    public void testIgnoreNullsWithOrderBy() throws Throwable {
+        assertEvaluate(
+            "lead(x) ignore nulls over(order by x asc)",
+            contains(new Object[]{2, 3, 4, 5, null}),
+            List.of(new ColumnIdent("x")),
+            new Object[]{1},
+            new Object[]{2},
+            new Object[]{3},
+            new Object[]{4},
+            new Object[]{5}
+        );
+    }
 }

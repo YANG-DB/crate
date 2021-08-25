@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public class IntegralAverageStateType extends AverageStateType {
 
-    static final int ID = 1024;
+    static final int ID = 1026;
     static final IntegralAverageStateType INSTANCE = new IntegralAverageStateType();
     private static final int INTEGRAL_AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(IntegralAverageState.class);
 

@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public class FractionalAverageStateType extends AverageStateType {
 
-    static final int ID = 1026;
+    static final int ID = 1024;
     static final FractionalAverageStateType INSTANCE = new FractionalAverageStateType();
     private static final int FRACTIONAL_AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(FractionalAverageStateType.class);
 

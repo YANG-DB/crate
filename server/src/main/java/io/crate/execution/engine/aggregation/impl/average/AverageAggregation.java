@@ -163,8 +163,14 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                                  Version indexVersionCreated,
                                  Version minNodeInCluster,
                                  MemoryManager memoryManager) {
-        ramAccounting.addBytes(stateDateType.fixedSize());
-        return stateSupplier.get();
+        if (minNodeInCluster.onOrAfter(Version.V_4_7_0)) {
+            ramAccounting.addBytes(stateDateType.fixedSize());
+            return stateSupplier.get();
+        }
+        // FractionalAverageState is compatible with old AverageState since it has same type id (1024)
+        // and same internal implementation is same as well - long count and double sum.
+        ramAccounting.addBytes(FractionalAverageStateType.INSTANCE.fixedSize());
+        return new FractionalAverageState();
     }
 
     @Override
@@ -203,13 +209,20 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),
                     (ramAccounting, memoryManager, minNodeVersion) -> {
-                        ramAccounting.addBytes(IntegralAverageStateType.INSTANCE.fixedSize());
-                        return new IntegralAverageState();
+                        if (minNodeVersion.onOrAfter(Version.V_4_7_0)) {
+                            ramAccounting.addBytes(IntegralAverageStateType.INSTANCE.fixedSize());
+                            return new IntegralAverageState();
+                        }
+                        // FractionalAverageState is compatible with old AverageState since it has same type id (1024)
+                        // and same internal implementation is same as well - long count and double sum.
+                        ramAccounting.addBytes(FractionalAverageStateType.INSTANCE.fixedSize());
+                        return new FractionalAverageState();
                     },
                     (values, state) -> {
                         state.addNumber(values.nextValue()); // Mutates state.
                     }
                 );
+            // No version check for float and Double as FractionalAverageState is compatible with old AverageState.
             case FloatType.ID:
                 return new SortedNumericDocValueAggregator<>(
                     fieldTypes.get(0).name(),

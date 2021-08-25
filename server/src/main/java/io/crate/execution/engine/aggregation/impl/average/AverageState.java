@@ -84,8 +84,6 @@ public abstract class AverageState implements Comparable<AverageState>, Writeabl
 
     @Override
     public void writeTo(StreamOutput out) throws IOException {
-        // Similar to HllState but in order not to store dataType in state we provide minimal information for later reading from StreamInput.
-        out.writeBoolean(this instanceof IntegralAverageState);
         out.writeDouble(this.sum);
         out.writeVLong(this.count);
     }

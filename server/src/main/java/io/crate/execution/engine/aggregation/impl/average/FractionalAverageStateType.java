@@ -21,21 +21,16 @@
 
 package io.crate.execution.engine.aggregation.impl.average;
 
-import io.crate.Streamer;
-import io.crate.types.DataType;
-import io.crate.types.FixedWidthType;
 import org.apache.lucene.util.RamUsageEstimator;
 import org.elasticsearch.common.io.stream.StreamInput;
-import org.elasticsearch.common.io.stream.StreamOutput;
 
 import java.io.IOException;
 
-public class FractionalAverageStateType extends DataType<AverageState> implements FixedWidthType, Streamer<AverageState> {
+public class FractionalAverageStateType extends AverageStateType {
 
     static final int ID = 1026;
     static final FractionalAverageStateType INSTANCE = new FractionalAverageStateType();
     private static final int FRACTIONAL_AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(FractionalAverageStateType.class);
-
 
     @Override
     public int id() {
@@ -43,29 +38,13 @@ public class FractionalAverageStateType extends DataType<AverageState> implement
     }
 
     @Override
-    public Precedence precedence() {
-        return Precedence.CUSTOM;
-    }
-
-    @Override
     public String getName() {
-        return "average_state";
-    }
-
-    @Override
-    public Streamer<AverageState> streamer() {
-        return this;
+        return "fractional_average_state";
     }
 
     @Override
     public AverageState sanitizeValue(Object value) {
-        return (AverageState) value;
-    }
-
-    @Override
-    public int compare(AverageState val1, AverageState val2) {
-        if (val1 == null) return -1;
-        return val1.compareTo(val2);
+        return (FractionalAverageState) value;
     }
 
     @Override
@@ -74,12 +53,6 @@ public class FractionalAverageStateType extends DataType<AverageState> implement
         averageState.sum = in.readDouble();
         averageState.count = in.readVLong();
         return averageState;
-    }
-
-    @Override
-    public void writeValueTo(StreamOutput out, AverageState v) throws IOException {
-        out.writeDouble(v.sum);
-        out.writeVLong(v.count);
     }
 
     @Override

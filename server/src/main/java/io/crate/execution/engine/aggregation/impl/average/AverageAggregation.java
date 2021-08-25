@@ -49,7 +49,6 @@ import io.crate.types.ByteType;
 import io.crate.types.DataType;
 import io.crate.types.DataTypes;
 import io.crate.types.DoubleType;
-import io.crate.types.FixedWidthType;
 import io.crate.types.FloatType;
 import io.crate.types.IntegerType;
 import io.crate.types.LongType;
@@ -74,24 +73,24 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
     public static void register(AggregationImplModule mod) {
 
         for (var functionName : NAMES) {
-            for (var supportedType : SUPPORTED_INTEGRAL_TYPES) {
+            for (var supportedType : INTEGRAL_TYPES) {
                 mod.register(
                     Signature.aggregate(
                         functionName,
                         supportedType.getTypeSignature(),
                         DataTypes.DOUBLE.getTypeSignature()),
                     (signature, boundSignature) ->
-                        new AverageAggregation(signature, boundSignature, () -> new IntegralAverageState(), () -> IntegralAverageStateType.INSTANCE)
+                        new AverageAggregation(signature, boundSignature, () -> new IntegralAverageState(), IntegralAverageStateType.INSTANCE)
                 );
             }
-            for (var supportedType : SUPPORTED_FRACTIONAL_TYPES) {
+            for (var supportedType : FRACTIONAL_TYPES) {
                 mod.register(
                     Signature.aggregate(
                         functionName,
                         supportedType.getTypeSignature(),
                         DataTypes.DOUBLE.getTypeSignature()),
                     (signature, boundSignature) ->
-                        new AverageAggregation(signature, boundSignature, () -> new FractionalAverageState(), () -> FractionalAverageStateType.INSTANCE)
+                        new AverageAggregation(signature, boundSignature, () -> new FractionalAverageState(), FractionalAverageStateType.INSTANCE)
                 );
             }
         }
@@ -100,13 +99,13 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
     private final Signature signature;
     private final Signature boundSignature;
     private final Supplier<AverageState> stateSupplier;
-    private final Supplier<FixedWidthType> stateDateTypeSupplier;
+    private final AverageStateType stateDateType;
 
-    AverageAggregation(Signature signature, Signature boundSignature, Supplier<AverageState> stateSupplier, Supplier<FixedWidthType> stateDateTypeSupplier) {
+    AverageAggregation(Signature signature, Signature boundSignature, Supplier<AverageState> stateSupplier, AverageStateType stateDateType) {
         this.signature = signature;
         this.boundSignature = boundSignature;
         this.stateSupplier = stateSupplier;
-        this.stateDateTypeSupplier = stateDateTypeSupplier;
+        this.stateDateType = stateDateType;
     }
 
     @Override
@@ -164,13 +163,13 @@ public class AverageAggregation extends AggregationFunction<AverageState, Double
                                  Version indexVersionCreated,
                                  Version minNodeInCluster,
                                  MemoryManager memoryManager) {
-        ramAccounting.addBytes(stateDateTypeSupplier.get().fixedSize());
+        ramAccounting.addBytes(stateDateType.fixedSize());
         return stateSupplier.get();
     }
 
     @Override
     public DataType<?> partialType() {
-        return (DataType<?>) stateDateTypeSupplier.get();
+        return stateDateType;
     }
 
     @Override

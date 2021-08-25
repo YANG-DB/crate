@@ -21,43 +21,33 @@
 
 package io.crate.execution.engine.aggregation.impl.average;
 
-import org.apache.lucene.util.RamUsageEstimator;
-import org.elasticsearch.common.io.stream.StreamInput;
+import io.crate.Streamer;
+import io.crate.types.DataType;
+import io.crate.types.FixedWidthType;
+import org.elasticsearch.common.io.stream.StreamOutput;
 
 import java.io.IOException;
 
-public class IntegralAverageStateType extends AverageStateType {
-
-    static final int ID = 1024;
-    static final IntegralAverageStateType INSTANCE = new IntegralAverageStateType();
-    private static final int INTEGRAL_AVERAGE_STATE_SIZE = (int) RamUsageEstimator.shallowSizeOfInstance(IntegralAverageState.class);
-
+public abstract class AverageStateType extends DataType<AverageState> implements FixedWidthType, Streamer<AverageState> {
 
     @Override
-    public int id() {
-        return ID;
+    public Precedence precedence() {
+        return Precedence.CUSTOM;
     }
 
     @Override
-    public String getName() {
-        return "integral_average_state";
+    public Streamer<AverageState> streamer() {
+        return this;
     }
 
     @Override
-    public AverageState sanitizeValue(Object value) {
-        return (IntegralAverageState) value;
+    public int compare(AverageState val1, AverageState val2) {
+        if (val1 == null) return -1;
+        return val1.compareTo(val2);
     }
 
     @Override
-    public AverageState readValueFrom(StreamInput in) throws IOException {
-        AverageState averageState = new IntegralAverageState();
-        averageState.sum = in.readDouble();
-        averageState.count = in.readVLong();
-        return averageState;
-    }
-
-    @Override
-    public int fixedSize() {
-        return INTEGRAL_AVERAGE_STATE_SIZE;
+    public void writeValueTo(StreamOutput out, AverageState v) throws IOException {
+        v.writeTo(out);
     }
 }
